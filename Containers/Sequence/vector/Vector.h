@@ -5,18 +5,27 @@
 #include <climits>
 #include <exception>
 #include <type_traits>
+#include "Allocator.h"
 
 namespace my {
-	class out_of_range;
-	template <typename T>
+	template <typename T, typename Alloc = Allocator<T>>
 	class Vector {
-		friend class out_of_range;
+		class out_of_range;
+		using value_type = T;
+		using allocator_type = Allocator<value_type>;
+		using size_type = size_t;
+		using difference_type = std::ptrdiff_t;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+
 	public:
 		constexpr Vector();
 		constexpr explicit Vector(size_t);
 		constexpr Vector(size_t, const T&);
-		constexpr Vector(const Vector<T> &);
-		constexpr Vector(Vector<T> &&) noexcept;
+		constexpr Vector(const Vector<T, Alloc> &);
+		constexpr Vector(Vector<T, Alloc> &&) noexcept;
 		constexpr Vector(std::initializer_list<T>);
 		template <typename InputIterator, typename = typename std::enable_if_t<!std::is_arithmetic_v<InputIterator>>>
 		constexpr Vector(InputIterator, InputIterator);
@@ -125,13 +134,13 @@ namespace my {
 		constexpr Vector& operator=(const Vector &);
 		constexpr Vector& operator=(Vector &&) noexcept;
 		constexpr Vector& operator=(std::initializer_list<T>);
-		constexpr bool operator<(Vector<T> & vec) const;
-		constexpr bool operator>(Vector<T> & vec) const;
-		constexpr bool operator>=(Vector<T> & vec) const;
-		constexpr bool operator<=(Vector<T> & vec) const;
-		constexpr bool operator==(const Vector<T> &) const;
-		constexpr auto operator<=>(const Vector<T> & oth) const;
-		constexpr bool operator!=(const Vector<T> &) const;
+		constexpr bool operator<(Vector<T, Alloc> & vec) const;
+		constexpr bool operator>(Vector<T, Alloc> & vec) const;
+		constexpr bool operator>=(Vector<T, Alloc> & vec) const;
+		constexpr bool operator<=(Vector<T, Alloc> & vec) const;
+		constexpr bool operator==(const Vector<T, Alloc> &) const;
+		constexpr auto operator<=>(const Vector<T, Alloc> & oth) const;
+		constexpr bool operator!=(const Vector<T, Alloc> &) const;
 		constexpr const T& operator[](size_t) const;
 		constexpr T& operator[](size_t);
 	public:
@@ -162,7 +171,7 @@ namespace my {
 		constexpr void push_back(const T&);
 		constexpr void push_back(T&&);    
 		constexpr void pop_back();
-		constexpr void swap(Vector<T>&) noexcept;
+		constexpr void swap(Vector<T, Alloc>&) noexcept;
 		constexpr void clear() noexcept;
 		constexpr const T& at(size_t) const;
 		constexpr T& at(size_t);
@@ -179,7 +188,7 @@ public:
 	const char* what() {
 		return msg;
 	}
-private:
+public:
 	out_of_range(const char* str)
 	: msg(str)
 	{}

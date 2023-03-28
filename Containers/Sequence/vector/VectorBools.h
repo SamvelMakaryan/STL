@@ -194,7 +194,7 @@ constexpr Vector<bool>::Vector(const Vector<bool> & oth) : m_size(oth.m_size), m
 } 
 
 constexpr Vector<bool>::Vector(Vector<bool> && oth) noexcept : m_size(oth.m_size), m_cap(oth.m_cap) {
-	m_buf = oth.m++()_buf;
+	m_buf = oth.m_buf;
 	oth.m_buf = nullptr;
 	oth.m_size = 0;
 	oth.m_cap = 0;
