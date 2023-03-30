@@ -1,13 +1,36 @@
-template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::Vector() : m_size(0), m_cap(0), m_buf(nullptr) {}
+#ifndef VECTOR_IMPLEMENTATION_TPP 
+#define VECTOR_IMPLEMENTATION_TPP
+#include "Vector.h" 
 
 template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::Vector(size_t n) : m_size(n), m_cap(n) {
+constexpr Vector<T, Alloc>::Vector() noexcept(noexcept(Alloc()))
+ : m_size(0),
+   m_cap(0),
+   m_buf(nullptr),
+   m_allocator(Alloc()) {}
+
+template <typename T, typename Alloc>
+constexpr Vector<T, Alloc>::Vector(const Alloc& allocator) noexcept
+: m_allocator(allocator),
+  m_size(0),
+  m_cap(0),
+  m_buf(nullptr) {}
+
+template <typename T, typename Alloc>
+constexpr Vector<T, Alloc>::Vector(size_t n, const Alloc& allocator)
+ : m_size(n),
+   m_cap(n),
+   m_allocator(allocator)
+{
 	m_buf = new T [m_cap];
 }
 
 template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::Vector(size_t n, const T& val) : m_size(n), m_cap(n) {
+constexpr Vector<T, Alloc>::Vector(size_t n, const T& val, const Alloc& allocator)
+ : m_size(n),
+   m_cap(n),
+   m_allocator(allocator)
+{
 	m_buf = new T [m_cap];
 	for (size_t i = 0; i < m_size; ++i) {
 		m_buf[i] = val;
@@ -15,7 +38,10 @@ constexpr Vector<T, Alloc>::Vector(size_t n, const T& val) : m_size(n), m_cap(n)
 }
 
 template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::Vector(const Vector<T, Alloc> & vec) : m_size(vec.m_size), m_cap(vec.m_cap) {
+constexpr Vector<T, Alloc>::Vector(const Vector& vec)
+ : m_size(vec.m_size),
+   m_cap(vec.m_cap)
+{
 	m_buf = new T [m_cap];
 	for (size_t i = 0; i < m_size; ++i) {
 		m_buf[i] = vec.m_buf[i];
@@ -23,15 +49,47 @@ constexpr Vector<T, Alloc>::Vector(const Vector<T, Alloc> & vec) : m_size(vec.m_
 }
 
 template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::Vector(Vector<T, Alloc> && vec) noexcept : m_size(vec.m_size), m_cap(vec.m_cap) {
-	m_buf = vec.m_buf;
+constexpr Vector<T, Alloc>::Vector(const Vector& vec, const Alloc& allocator)
+ : m_allocator(allocator),
+   m_size(vec.m_size),
+   m_cap(vec.m_cap)
+{
+	m_buf = new T [m_cap];
+	for (size_t i = 0; i < m_size; ++i) {
+		m_buf[i] = vec.m_buf[i];
+	}
+}
+
+template <typename T, typename Alloc>
+constexpr Vector<T, Alloc>::Vector(Vector&& vec) noexcept
+ : m_allocator(std::move(vec.m_allocator)),
+   m_size(vec.m_size),
+   m_cap(vec.m_cap),
+   m_buf(vec.m_buf)
+{
 	vec.m_buf = nullptr;
 	vec.m_size = 0;
 	vec.m_cap = 0;
 }
 
 template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::Vector(std::initializer_list<T> init) : m_size(init.size()), m_cap(m_size) {
+constexpr Vector<T,Alloc>::Vector(Vector&& vec, const Alloc& allocator) 
+ : m_allocator(allocator),
+   m_size(vec.m_size),
+   m_cap(vec.m_cap),
+   m_buf(vec.m_buf)
+{
+	vec.m_buf = nullptr;
+	vec.m_size = 0;
+	vec.m_cap = 0;
+}
+
+template <typename T, typename Alloc>
+constexpr Vector<T, Alloc>::Vector(std::initializer_list<T> init, const Alloc& allocator)
+ : m_allocator(allocator),
+   m_size(init.size()),
+   m_cap(m_size)
+{
 	m_buf = new T [m_cap];
 	size_t count = 0;
 	for (auto& i : init) {
@@ -41,7 +99,9 @@ constexpr Vector<T, Alloc>::Vector(std::initializer_list<T> init) : m_size(init.
 
 template <typename T, typename Alloc>
 template <typename InputIterator, typename>
-constexpr Vector<T, Alloc>::Vector(InputIterator first, InputIterator last) {
+constexpr Vector<T, Alloc>::Vector(InputIterator first, InputIterator last, const Alloc& allocator) 
+ : m_allocator(allocator)
+{
 	size_t count = 0;
 	size_t j = 0;
 	for (auto i = first; i != last; ++i) {
@@ -56,7 +116,9 @@ constexpr Vector<T, Alloc>::Vector(InputIterator first, InputIterator last) {
 }
 		
 template <typename T, typename Alloc>
-constexpr Vector<T, Alloc>::~Vector() { delete[] m_buf; m_buf = nullptr;}
+constexpr Vector<T, Alloc>::~Vector() {
+	delete[] m_buf; m_buf = nullptr;
+}
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(const Vector & rhs) {
@@ -72,7 +134,6 @@ constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(const Vector & rhs) {
 	}
 	return *this;
 }
-
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(Vector && rhs) noexcept {
@@ -179,7 +240,7 @@ constexpr size_t Vector<T, Alloc>::size() const noexcept {
 
 template <typename T, typename Alloc>
 constexpr size_t Vector<T, Alloc>::max_size() const noexcept {
-	return (sizeof(size_t) == 4) ? UINT_MAX / sizeof(T) : ULONG_LONG_MAX / sizeof(T);
+	return (std::numeric_limits<size_t>::max() / sizeof(T));
 }
 
 template <typename T, typename Alloc>
@@ -331,7 +392,6 @@ constexpr void Vector<T, Alloc>::pop_back() {
 	}
 	--m_size;
 }
-
 
 template <typename T, typename Alloc>
 constexpr void Vector<T, Alloc>::swap(Vector<T, Alloc>& vec) noexcept {
@@ -598,3 +658,10 @@ constexpr void Vector<T, Alloc>::assign(iterator first, iterator last) {
 		m_buf[j++] = *i;
 	}
 }
+
+#include "Vector_iterator.tpp"
+#include "Vector_const_iterator.tpp"
+#include "Vector_reverse_iterator.tpp"
+#include "Vector_const_reverse_iterator.tpp"
+
+#endif

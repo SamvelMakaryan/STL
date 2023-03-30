@@ -27,8 +27,10 @@ int main() {
 	// Vector<A> ob;
 	// A b(6);
 	// ob.push_back(b);
-	std::vector<A> ob;
-	A b(6);
-	ob.push_back(b);
+	Vector<int> ob;
 	ob.push_back(4);
+	std::cout << ob[0];
+
+
+	
 }

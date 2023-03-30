@@ -1,24 +1,39 @@
+#ifndef ALLOCATOR_H
+#define ALLOCATOR_H
 #include <utility>
 #include <cstddef>
+#include <limits>
+#include <new>
+
 namespace my {
     template <typename T>
     class Allocator {
     public:
         using value_type = T;
-        Allocator() = default;
-        ~Allocator() = default;
-        static T* allocate(size_t n) {
+		using size_type = size_t;
+		using difference_type = std::ptrdiff_t;
+    public:
+        constexpr Allocator() noexcept = default;
+        constexpr Allocator(const Allocator&) noexcept = default;
+        constexpr ~Allocator() = default;
+    public:
+        [[nodiscard]] constexpr T* allocate(size_t n) {
             return static_cast<T*>(::operator new (sizeof(T) * n));
         }
-        static void deallocate(T* ptr, size_t n) noexcept {
+        constexpr void deallocate(T* ptr, size_t n) {
             ::operator delete(ptr, n * sizeof(T));
         }
         template <typename... Args>
-        static void construct(T* ptr, Args&&... args) {
+        void construct(T* ptr, Args&&... args) {
             ::new (ptr) T(std::forward<Args>(args)...);
         }
-        static void destroy(T* ptr) noexcept {
+        void destroy(T* ptr) noexcept {
             ptr->~T();
+        }
+        size_type max_size() const noexcept {
+            return (std::numeric_limits<size_type>::max() / sizeof(value_type));
         }
     };
 }
+
+#endif

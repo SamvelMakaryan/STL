@@ -1,5 +1,14 @@
+#ifndef VECTOR_BOOL_TPP
+#define VECTOR_BOOL_TPP
+#include "Vector.h"
+
 template <> 
 class Vector<bool> {
+public:
+	using value_type = bool;
+	using allocator_type = Allocator<value_type>;
+	using size_type = size_t;
+	using difference_type = std::ptrdiff_t;
 public:
 	constexpr Vector();
 	constexpr explicit Vector(size_t);
@@ -257,18 +266,18 @@ constexpr bool Vector<bool>::empty() const noexcept {
 }
 
 constexpr size_t Vector<bool>::max_size() const noexcept {
-	return (sizeof(size_t) == 4) ? UINT_MAX  : ULONG_LONG_MAX;
+	return (std::numeric_limits<bool>::max() / sizeof(bool) / 8);
 }
 
 constexpr void Vector<bool>::_realloc(size_t n) {
-		m_cap = n;
-		unsigned char* tmp = new unsigned char [(m_cap + 7) / 8];
-		for (size_t i = 0; i < m_size; ++i) {
-			tmp[i] = m_buf[i];
-		}
-		delete[] m_buf;
-		m_buf = tmp;
-		tmp = nullptr;
+	m_cap = n;
+	unsigned char* tmp = new unsigned char [(m_cap + 7) / 8];
+	for (size_t i = 0; i < m_size; ++i) {
+		tmp[i] = m_buf[i];
+	}
+	delete[] m_buf;
+	m_buf = tmp;
+	tmp = nullptr;
 }
 
 constexpr void Vector<bool>::resize(size_t n) {
@@ -495,3 +504,5 @@ constexpr Vector<bool>::const_iterator Vector<bool>::cbegin() const noexcept {
 constexpr Vector<bool>::const_iterator Vector<bool>::cend() const noexcept {
 	return const_iterator(m_buf, m_size);
 }
+
+#endif
