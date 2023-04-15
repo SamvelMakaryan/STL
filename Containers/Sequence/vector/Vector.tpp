@@ -682,6 +682,36 @@ constexpr typename Vector<T, Alloc>::allocator_type Vector<T, Alloc>::get_alloca
 // 	}
 // }
 
+template <typename T, typename Alloc>
+template <typename... Args>
+constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::emplace(const_iterator it, Args&&... args) {
+	if (it > cend() || it < cbegin()) {
+		throw out_of_range("error : out of range");
+	}
+	size_t index = std::distance(it, cbegin());
+	if (m_cap == m_size) {
+		_realloc(m_cap * 2);
+	}
+	for (size_t i = m_size; i >= index + 1; --i) {
+		m_allocator.construct(m_buf + i, std::move(m_buf[i - 1]));
+		m_allocator.destroy(m_buf + i - 1);
+	}
+	m_allocator.construct(m_buf + index, (args)...);
+	++m_size;
+	return iterator(m_buf + index);
+}
+
+template <typename T, typename Alloc>
+template <typename... Args>
+constexpr T& Vector<T, Alloc>::emplace_back(Args&&... args) {
+	if (m_size == m_cap) {
+		_realloc(m_cap * 2);
+	}
+	m_allocator.construct(m_buf + m_size, (args)...);
+	++m_size;
+	return m_buf[m_size - 1];
+}
+
 #include "Vector_iterator.tpp"
 #include "Vector_const_iterator.tpp"
 #include "Vector_reverse_iterator.tpp"

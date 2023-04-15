@@ -192,6 +192,10 @@ namespace my {
 		constexpr const T& operator[](size_t) const;
 		constexpr T& operator[](size_t);
 	public:
+		template <typename... Args>
+		constexpr iterator emplace(const_iterator, Args&&...);
+		template <typename... Args>
+		constexpr T& emplace_back(Args&&...);
 		constexpr iterator erase(iterator it);
 		constexpr iterator erase(iterator first, iterator last);
 		constexpr iterator insert(iterator it, const T& val);

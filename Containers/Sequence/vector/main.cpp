@@ -4,20 +4,29 @@
 
 class A {
 	public:
-		A() {std::cout <<"A default\n";};
-		A(int x) {
+		A() : x(0) {std::cout <<"A default\n";};
+		A(int x) : x(x) {
 			std::cout << "A par \n";
 		}
-		A(A&&) {std::cout <<"A move\n";}
-		A(const A&) {std::cout <<"A copy\n";}
+		A(A&& oth) : x(std::move(oth.x)) {std::cout <<"A move\n";}
+		A(const A& oth): x(oth.x) {std::cout <<"A copy\n";}
 		A& operator=(const A&) {std::cout << "A =\n"; return*this;}
 		A& operator=(A&&) {std::cout << "A move=\n"; return*this;}
+		friend std::ostream& operator<<(std::ostream& os, const A& ob) {
+			os << ob.x;
+			return os;
+		}
+	private:
+		int x;
 };
 
 int main() {
 	using namespace my;
-	Vector<int> ob {1,2,3,4,6};
-	ob.insert(ob.begin() + 5, {9,9,9});
+	Vector<A> ob {A(1),A(2),A(3),A(4)};
+	// std::vector<A> ob {A(1),A(2),A(3),A(4)};
+	// Vector<int> ob {1,2,3,4,6};
+	ob.emplace(ob.begin() + 4, 9);
+	// ob.insert(ob.begin() + 5, {9,9,9});
 	// Vector<int> ob2 {5,7,8,9,88};
 	// Vector<A> ob {A(1),A(2),A(3),A(4)};
 	
