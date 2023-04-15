@@ -1,6 +1,6 @@
 #ifndef VECTOR_CONST_ITERATOR_TPP
 #define VECTOR_CONST_ITERATOR_TPP
-#include "Vector.h"
+#include "Vector.hpp"
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::const_iterator::const_iterator(const T* ptr) 
@@ -38,16 +38,17 @@ constexpr typename Vector<T, Alloc>::const_iterator Vector<T, Alloc>::const_iter
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::const_iterator Vector<T, Alloc>::const_iterator::operator+(size_t n) const {
-	const_iterator tmp = *this; 
-	tmp.ptr += n; 
-	return tmp;
+	return const_iterator(ptr + n);
 } 
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::const_iterator Vector<T, Alloc>::const_iterator::operator-(size_t n) const {
-	const_iterator tmp = *this;
-	tmp.ptr -= n; 
-	return tmp;
+	return const_iterator(ptr - n);
+}
+
+template <typename T, typename Alloc>
+constexpr size_t Vector<T, Alloc>::const_iterator::operator-(const_iterator& it) const { 
+	return (it.ptr - ptr);
 }
 
 template <typename T, typename Alloc>

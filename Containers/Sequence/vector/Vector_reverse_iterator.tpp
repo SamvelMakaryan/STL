@@ -1,6 +1,6 @@
 #ifndef VECTOR_REVERSE_ITERATOR_TPP
 #define VECTOR_REVERSE_ITERATOR_TPP
-#include "Vector.h"
+#include "Vector.hpp"
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::reverse_iterator::reverse_iterator(T* ptr)
@@ -34,17 +34,14 @@ constexpr typename Vector<T, Alloc>::reverse_iterator Vector<T, Alloc>::reverse_
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::reverse_iterator Vector<T, Alloc>::reverse_iterator::operator+(size_t n) const {
-	reverse_iterator tmp = *this; 
-	tmp.ptr -= n; 
-	return tmp;
+	return reverse_iterator(ptr - n);
 } 
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::reverse_iterator Vector<T, Alloc>::reverse_iterator::operator-(size_t n) const {
-	reverse_iterator tmp = *this; 
-	tmp.ptr += n; 
-	return tmp;
+	return reverse_iterator(ptr + n);
 }
+
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::reverse_iterator& Vector<T, Alloc>::reverse_iterator::operator+=(size_t n) {

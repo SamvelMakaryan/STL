@@ -1,35 +1,49 @@
 #include <iostream>
-#include "Vector.h"
+#include "Vector.hpp"
 #include <vector>
 
 class A {
 	public:
-		A() = delete;
+		A() {std::cout <<"A default\n";};
 		A(int x) {
-			std::cout << "A" << " ";
+			std::cout << "A par \n";
 		}
+		A(A&&) {std::cout <<"A move\n";}
+		A(const A&) {std::cout <<"A copy\n";}
+		A& operator=(const A&) {std::cout << "A =\n"; return*this;}
+		A& operator=(A&&) {std::cout << "A move=\n"; return*this;}
 };
 
 int main() {
 	using namespace my;
-	// Vector<bool> b(3, true);
-	// Vector<bool> a(b);
-	// a = {1,1,0,0,1,0,1};
-	// for (auto j = a.cend(); j != a.cbegin(); --j) {
-	// 	std::cout << *j << " ";
+	Vector<int> ob {1,2,3,4,6};
+	ob.insert(ob.begin() + 5, {9,9,9});
+	// Vector<int> ob2 {5,7,8,9,88};
+	// Vector<A> ob {A(1),A(2),A(3),A(4)};
+	
+	// ob.insert(ob.begin() + 2, x);
+
+	//###iteraotrs operator-
+	// ob.insert(ob.begin() + 3, ob2.begin() +1, ob2.begin() + 4);
+	// try {ob.insert(ob.end(), 9);} catch(...) {std::cout << "a";}
+	// ob2.insert(ob2.begin() + 1, 5, 9);
+	// std::vector<A> ob2 {A(1),A(2),A(3),A(4)};
+	// ob2.insert(ob2.begin() + 2, A(5));
+	for (auto& i : ob)
+		std::cout << i;
+		std::cout << std::endl;
+	// for (auto& i : ob2) {
+	// 	std::cout << i;
 	// }
-	// // auto j = a.cend();
-	// // --j;
-	// // std::cout << *j << std::endl;
-	// for (auto i = a.begin(); i != a.end(); ++i) {
-	// 	std::cout << *i;
-	//  }
-	// Vector<A> ob;
-	// A b(6);
-	// ob.push_back(b);
-	Vector<int> ob;
-	ob.push_back(4);
-	std::cout << ob[0];
+	// std::cout << std::endl;
+	// Vector<int> b(ob.begin(), ob.begin() + 4);
+	// ob.push_back(4);
+	// b = {1,2,1,1};
+	// b.resize(15, 6);
+	// for (auto& i: b)
+	// std::cout << i;
+	// std::cout << std::endl << b.size() << "  " << b.capacity();
+	// ob.resize(5);
 
 
 	

@@ -1,5 +1,5 @@
-#ifndef ALLOCATOR_H
-#define ALLOCATOR_H
+#ifndef ALLOCATOR_HPP
+#define ALLOCATOR_HPP
 #include <utility>
 #include <cstddef>
 #include <limits>
@@ -30,7 +30,7 @@ namespace my {
         void destroy(T* ptr) noexcept {
             ptr->~T();
         }
-        size_type max_size() const noexcept {
+        size_type max_size() const noexcept { 
             return (std::numeric_limits<size_type>::max() / sizeof(value_type));
         }
     };

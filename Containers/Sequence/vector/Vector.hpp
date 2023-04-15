@@ -1,12 +1,12 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 #include <cstddef>
 #include <initializer_list>
 #include <limits>
 #include <type_traits>
 #include <compare>
-#include "Allocator.h"
-#include "Exception.h"
+#include "Allocator.hpp"
+#include "Exception.hpp"
 
 namespace my {
 	template <typename T, typename Alloc = Allocator<T>>
@@ -46,6 +46,7 @@ namespace my {
 			using const_pointer = const value_type*;
 		public:
 			constexpr iterator(T*);
+			constexpr iterator(const iterator&);
 		public:
 			constexpr iterator& operator++(); 
 			constexpr iterator operator++(int);
@@ -53,6 +54,7 @@ namespace my {
 			constexpr iterator operator--(int);
 			constexpr iterator operator+(size_t) const; 
 			constexpr iterator operator-(size_t) const;
+			constexpr size_t operator-(iterator&) const;
 			constexpr iterator& operator+=(size_t); 
 			constexpr iterator& operator-=(size_t); 
 			constexpr bool operator!=(const iterator&) const;
@@ -86,6 +88,7 @@ namespace my {
 			constexpr const_iterator operator--(int);
 			constexpr const_iterator operator+(size_t) const; 
 			constexpr const_iterator operator-(size_t) const;
+			constexpr size_t operator-(const_iterator&) const;
 			constexpr const_iterator& operator+=(size_t); 
 			constexpr const_iterator& operator-=(size_t); 
 			constexpr bool operator!=(const const_iterator&) const;
@@ -117,6 +120,7 @@ namespace my {
 			constexpr reverse_iterator operator--(int);
 			constexpr reverse_iterator operator+(size_t) const; 
 			constexpr reverse_iterator operator-(size_t) const;
+			constexpr size_t operator-(reverse_iterator&) const;
 			constexpr reverse_iterator& operator+=(size_t); 
 			constexpr reverse_iterator& operator-=(size_t); 
 			constexpr bool operator!=(const reverse_iterator&) const;
@@ -150,6 +154,7 @@ namespace my {
 			constexpr const_reverse_iterator operator--(int);
 			constexpr const_reverse_iterator operator+(size_t) const; 
 			constexpr const_reverse_iterator operator-(size_t) const;
+			constexpr size_t operator-(const_reverse_iterator&) const;
 			constexpr const_reverse_iterator& operator+=(size_t); 
 			constexpr const_reverse_iterator& operator-=(size_t); 
 			constexpr bool operator!=(const const_reverse_iterator&) const;
@@ -218,6 +223,7 @@ namespace my {
 		constexpr void clear() noexcept;
 		constexpr const T& at(size_t) const;
 		constexpr T& at(size_t);
+		constexpr allocator_type get_allocator() const noexcept;
 	private:
 		constexpr void _realloc(size_t);
 	private:
@@ -226,9 +232,8 @@ namespace my {
 		T* m_buf;
 		Alloc m_allocator;
 	};
-	#include "VectorImplementation.tpp"
-	#include "VectorBool.tpp"
+	#include "Vector.tpp"
+	#include "Vector_bool.hpp"
 }
 
 #endif
-

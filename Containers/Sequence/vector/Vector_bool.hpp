@@ -1,6 +1,6 @@
 #ifndef VECTOR_BOOL_TPP
 #define VECTOR_BOOL_TPP
-#include "Vector.h"
+#include "Vector.hpp"
 
 template <> 
 class Vector<bool> {

@@ -1,6 +1,6 @@
 #ifndef VECTOR_IMPLEMENTATION_TPP 
 #define VECTOR_IMPLEMENTATION_TPP
-#include "Vector.h" 
+#include "Vector.hpp" 
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::Vector() noexcept(noexcept(Alloc()))
@@ -22,7 +22,7 @@ constexpr Vector<T, Alloc>::Vector(size_t n, const Alloc& allocator)
    m_cap(n),
    m_allocator(allocator)
 {
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 }
 
 template <typename T, typename Alloc>
@@ -31,9 +31,9 @@ constexpr Vector<T, Alloc>::Vector(size_t n, const T& val, const Alloc& allocato
    m_cap(n),
    m_allocator(allocator)
 {
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	for (size_t i = 0; i < m_size; ++i) {
-		m_buf[i] = val;
+		m_allocator.construct(m_buf + i, val);
 	}
 }
 
@@ -42,9 +42,9 @@ constexpr Vector<T, Alloc>::Vector(const Vector& vec)
  : m_size(vec.m_size),
    m_cap(vec.m_cap)
 {
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	for (size_t i = 0; i < m_size; ++i) {
-		m_buf[i] = vec.m_buf[i];
+		m_allocator.construct(m_buf + i, vec.m_buf[i]);
 	}
 }
 
@@ -54,9 +54,9 @@ constexpr Vector<T, Alloc>::Vector(const Vector& vec, const Alloc& allocator)
    m_size(vec.m_size),
    m_cap(vec.m_cap)
 {
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	for (size_t i = 0; i < m_size; ++i) {
-		m_buf[i] = vec.m_buf[i];
+		m_allocator.construct(m_buf + i, vec.m_buf[i]);
 	}
 }
 
@@ -90,10 +90,10 @@ constexpr Vector<T, Alloc>::Vector(std::initializer_list<T> init, const Alloc& a
    m_size(init.size()),
    m_cap(m_size)
 {
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	size_t count = 0;
 	for (auto& i : init) {
-		m_buf[count++] = i;
+		m_allocator.construct(m_buf + count++, i);
 	}
 }
 
@@ -109,15 +109,19 @@ constexpr Vector<T, Alloc>::Vector(InputIterator first, InputIterator last, cons
 	}
 	m_cap = count;
 	m_size = count;
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	for (auto i = first ; i != last; ++i) {
-		m_buf[j++] = *i;
+		m_allocator.construct(m_buf + j++, *i);
 	}
 }
 		
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::~Vector() {
-	delete[] m_buf; m_buf = nullptr;
+	for (size_t i = 0; i < m_size; ++i) {
+		m_allocator.destroy(m_buf + i);
+	}
+	m_allocator.deallocate(m_buf, m_cap);
+	m_buf = nullptr;
 }
 
 template <typename T, typename Alloc>
@@ -125,19 +129,25 @@ constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(const Vector & rhs) {
 	if (this == &rhs) {
 		return *this;
 	}
-	delete[] m_buf;
+	for (size_t i = 0; i < m_size; ++i) {
+		m_allocator.destroy(m_buf + i);
+	}
+	m_allocator.deallocate(m_buf, m_cap);
 	m_size = rhs.m_size;
 	m_cap = rhs.m_cap;
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	for(size_t i = 0; i < m_size; ++i) {
-		m_buf[i] = rhs.m_buf[i];
+		m_allocator.construct(m_buf + i, rhs.m_buf[i]);
 	}
 	return *this;
 }
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(Vector && rhs) noexcept {
-	delete[] m_buf;
+	for (size_t i = 0; i < m_size; ++i) {
+		m_allocator.destroy(m_buf + i);
+	}
+	m_allocator.deallocate(m_buf, m_cap);
 	m_buf = rhs.m_buf;
 	m_size = rhs.m_size;
 	m_cap = rhs.m_cap;
@@ -149,13 +159,16 @@ constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(Vector && rhs) noexcept 
 		
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>& Vector<T, Alloc>::operator=(std::initializer_list<T> init) {
-	delete[] m_buf;
+	for (size_t i = 0; i < m_size; ++i) {
+		m_allocator.destroy(m_buf + i);
+	}
+	m_allocator.deallocate(m_buf, m_cap);
 	m_size = init.size();
 	m_cap = m_size * 2;
-	m_buf = new T [m_cap];
+	m_buf = m_allocator.allocate(m_cap);
 	size_t count = 0;
 	for(auto& i : init) {
-		m_buf[count++] = i;
+		m_allocator.construct(m_buf + count++, i);
 	}
 	return *this;
 }
@@ -259,15 +272,19 @@ constexpr void Vector<T, Alloc>::resize(size_t n) {
 		return;
 	}
 	if (n < m_size) {
+		for (size_t i = n; i < m_size; ++i) {
+			m_allocator.destroy(m_buf + i);
+		}
 		m_size = n;
+		return;
 	}
-	else if (n > m_size && n < m_cap) {
-		m_size = n;
-	}
-	else {
+	if (n > m_cap) {
 		_realloc(n * 2);
-		m_size = n;
 	}
+	for (size_t i = m_size; i < n; ++i) {
+		m_allocator.construct(m_buf + i);
+	}
+	m_size = n;
 }
 
 template <typename T, typename Alloc>
@@ -276,21 +293,19 @@ constexpr void Vector<T, Alloc>::resize(size_t n, const T& val) {
 		return;
 	}
 	if (n < m_size) {
-		m_size = n;
-	}
-	else if (n > m_size && n < m_cap) {
 		for (size_t i = m_size; i < n; ++i) {
-			m_buf[i] = val;
+			m_allocator.destroy(m_buf + i);
 		}
 		m_size = n;
+		return;
 	}
-	else {
+	if (n > m_cap) {
 		_realloc(n * 2);
-		for (size_t i = m_size; i < n; ++i) {
-			m_buf[i] = val;
-		}
-		m_size = n;
 	}
+	for (size_t i = m_size; i < n; ++i) {
+		m_allocator.construct(m_buf + i, val);
+	}
+	m_size = n;
 }
 
 template <typename T, typename Alloc>
@@ -336,52 +351,52 @@ constexpr T* Vector<T, Alloc>::data() noexcept {
 	return m_buf;
 }
 
-template <typename T, typename Alloc>
-constexpr void Vector<T, Alloc>::assign(size_t n, const T& val) {
-	delete[] m_buf;
-	m_size = n;
-	m_cap = n;
-	m_buf = new T [m_cap];
-	for (size_t i = 0; i < m_size; ++i) {
-		m_buf[i] = val;
-	}
-}
+// template <typename T, typename Alloc>
+// constexpr void Vector<T, Alloc>::assign(size_t n, const T& val) {
+// 	delete[] m_buf;
+// 	m_size = n;
+// 	m_cap = n;
+// 	m_buf = new T [m_cap];
+// 	for (size_t i = 0; i < m_size; ++i) {
+// 		m_buf[i] = val;
+// 	}
+// }
 
-template <typename T, typename Alloc>
-constexpr void Vector<T, Alloc>::assign(std::initializer_list<T> init) {
-	delete[] m_buf;
-	m_size = init.size();
-	m_cap = m_size;
-	m_buf = new T [m_cap];
-	size_t count = 0;
-	for (auto& i : init) {
-		m_buf[count++] = i;
-	}
-}
+// template <typename T, typename Alloc>
+// constexpr void Vector<T, Alloc>::assign(std::initializer_list<T> init) {
+// 	delete[] m_buf;
+// 	m_size = init.size();
+// 	m_cap = m_size;
+// 	m_buf = new T [m_cap];
+// 	size_t count = 0;
+// 	for (auto& i : init) {
+// 		m_buf[count++] = i;
+// 	}
+// }
 
 template <typename T, typename Alloc>
 constexpr void Vector<T, Alloc>::push_back(const T& val) {
 	if (m_cap == 0) {
-		++m_cap;
-		m_buf = new T [m_cap];
+		m_cap = 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
 	else if (m_size == m_cap) {
 		_realloc(m_cap * 2);
 	}
-	m_buf[m_size] = val;
+	m_allocator.construct(m_buf + m_size, val);
 	++m_size;
 }
 
 template <typename T, typename Alloc>
 constexpr void Vector<T, Alloc>::push_back(T&& val) {
 	if (m_cap == 0) {
-		++m_cap;
-		m_buf = new T [m_cap];
+		m_cap = 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
 	else if (m_size == m_cap) {
 		_realloc(m_cap * 2);
 	}
-	m_buf[m_size] = std::move(val);
+	m_allocator.construct(m_buf + m_size, std::move(val));
 	++m_size;
 }
 
@@ -390,6 +405,7 @@ constexpr void Vector<T, Alloc>::pop_back() {
 	if (m_size == 0) {
 		throw out_of_range("error : vector is empty");
 	}
+	m_allocator.destroy(m_buf + m_size - 1);
 	--m_size;
 }
 
@@ -402,6 +418,9 @@ constexpr void Vector<T, Alloc>::swap(Vector<T, Alloc>& vec) noexcept {
 
 template <typename T, typename Alloc>
 constexpr void Vector<T, Alloc>::clear() noexcept {
+	for (size_t i = m_size - 1; i >= 0; --i) {
+		m_allocator.destroy(m_buf + i);
+	}
 	m_size = 0;
 }
 
@@ -423,13 +442,14 @@ constexpr T& Vector<T, Alloc>::at(size_t n) {
 
 template <typename T, typename Alloc>
 constexpr void Vector<T, Alloc>::_realloc(size_t n) {
-	m_cap = n;
-	T* tmp = new T [m_cap];
+	T* tmp = m_allocator.allocate(n);
 	for (size_t i = 0; i < m_size; ++i) {
-		tmp[i] = m_buf[i];
+		m_allocator.construct(tmp + i, std::move(m_buf[i]));
+		m_allocator.destroy(m_buf + i);
 	}
-	delete[] m_buf;
+	m_allocator.deallocate(m_buf, m_cap);
 	m_buf = tmp;
+	m_cap = n;
 	tmp = nullptr;
 }
 
@@ -485,179 +505,182 @@ constexpr typename Vector<T, Alloc>::const_reverse_iterator Vector<T, Alloc>::cr
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::erase(iterator it) {
-	if (it >= end() || it < begin()) {
+	if (it > end() || it < begin()) {
 		throw out_of_range("error : out of range");
 	}
-	T* tmp = new T [m_size - 1];
-	size_t j = 0; 
-	for (auto i = begin(); i != it; ++i) {
-			tmp[j++] = *i;
+	size_t index = std::distance(it, begin()); 
+		m_allocator.destroy(m_buf + index);
+	for (size_t i = index + 1; i < m_size; ++i) {
+		m_allocator.construct(m_buf + i - 1, std::move(m_buf[i]));
+		m_allocator.destroy(m_buf + i);
 	}
-	size_t it_ind = j;
-	for (auto i = it + 1; i != end(); ++i) {
-			tmp[j++] = *i;
-	}
-	delete[] m_buf;
-	m_buf = tmp;
 	--m_size;
-	return iterator(m_buf + it_ind);
+	return iterator(m_buf + index);
 }
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::erase(iterator first, iterator last) {
-	if(first > last || first < begin() || last >= end() || first >= end() || last < begin()) {
+	if (first > last || first < begin() || last > end() || first > end() || last < begin()) {
 		throw out_of_range("error : out of range");
 	}
-	T* tmp = new T [m_size - 1];
-	size_t j = 0; 
-	for (auto i = begin(); i != first; ++i) {
-		tmp[j++] = *i;
+	size_t index = std::distance(first, begin());
+	size_t count = std::distance(last, first);
+	for (size_t i = 0; i < count; ++i) {
+		m_allocator.destroy(m_buf + index + i);
 	}
-	size_t it_ind = j;
-	for (auto i = last; i != end(); ++i) {
-		tmp[j++] = *i;
+	for (int i = index ; i < m_size; ++i) {
+		m_allocator.construct(m_buf + i, std::move(m_buf[i + count]));
+		m_allocator.destroy(m_buf + i + count);
 	}
-	delete[] m_buf;
-	m_buf = tmp;
-	m_size = j;
-	return iterator(m_buf + it_ind);
+	m_size -= count;
+	return iterator(m_buf + index);
 }
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::insert(iterator it, const T& val) {
-	if(it < begin() || it >= end()) {
+	if (it < begin() || it > end()) {
 		throw out_of_range("error : out of range");
 	}
-	m_cap *= 2;
-	T* tmp = new T [m_cap];
-	size_t j = 0;
-	for (auto i = begin(); i != it; ++i) {
-		tmp[j++] = *i;
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
-	size_t it_ind = j;
-	tmp[j++] = val;
-	for (auto i = it; i != end(); ++i) {
-		tmp[j++] = *i;
+	else if (m_size == m_cap) {
+		_realloc(m_cap * 2);
 	}
-	delete[] m_buf;
-	m_buf = tmp;
-	m_size = j;
-	return iterator(m_buf + it_ind);
+	for (size_t i = m_size; i >= index + 1; --i) {
+		m_allocator.construct(m_buf + i, std::move(m_buf[i - 1]));
+		m_allocator.destroy(m_buf + i - 1);
+	}
+	m_allocator.construct(m_buf + index, val);
+	++m_size;
+	return iterator(m_buf + index);
 }
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::insert(iterator it, size_t n, const T& val) {
-	if(it < begin() || it >= end()) {
+	if (it < begin() || it > end()) {
 		throw out_of_range("error : out of range");
 	}
-	m_cap = (m_size + n) * 2;
-	T* tmp = new T [m_cap];
-	size_t j = 0;
-	for (auto i = begin(); i != it; ++i) {
-		tmp[j++] = *i;
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = n + 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
-	size_t it_ind = j;
-	for (size_t i = 0; i < n; ++i) {
-		tmp[j++] = val;
+	else if (m_size + n >= m_cap) {
+		_realloc((m_cap + n) * 2);
 	}
-	for (auto i = it; i != end(); ++i) {
-		tmp[j++] = *i;
+	for (size_t i = m_size; i >= index + 1 ; --i) {
+		m_allocator.construct(m_buf + i + n - 1, std::move(m_buf[i - 1]));
+		m_allocator.destroy(m_buf + i - 1);
 	}
-	delete[] m_buf;
-	m_buf = tmp;
+	for (size_t i = index; i < index + n; ++i) {
+		m_allocator.construct(m_buf + i, val);
+	}
 	m_size += n;
-	return iterator(m_buf + it_ind);
+	return iterator(m_buf + index);
 }
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::insert(iterator it, iterator first, iterator last) {
-	if(first > last || first < begin() || last >= end() || first >= end() || last < begin() || it >= end() || it < begin()) {
+	if (first > last  || it > end() || it < begin()) {
 		throw out_of_range("error : out of range");
 	}
-	size_t size = 0;
-	for (auto i = first; i != last; ++i) {
-		++size;
+	size_t count = std::distance(last, first);
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = count + 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
-	m_cap = (m_size + size) * 2;
-	T* tmp = new T [m_cap];
-	size_t j = 0;
-	for (auto i = begin(); i != it; ++i) {
-		tmp[j++] = *i;
+	else if (m_cap + count >= m_size) {
+		_realloc((m_cap + count) * 2);
 	}
-	size_t it_ind = j;
-	for (auto i = first; i != last; ++i) {
-		tmp[j++] = *i;
+	for (size_t i = m_size; i >= index + 1; --i) {
+		m_allocator.construct(m_buf + i + count - 1, std::move(m_buf[i - 1]));
+		m_allocator.destroy(m_buf + i - 1);
 	}
-	for (auto i = it; i != end(); ++i) {
-		tmp[j++] = *i;
+	for (size_t i = index; i < index + count; ++i, ++first) {
+		m_allocator.construct(m_buf + i, std::move(*first));
 	}
-	delete[] m_buf;
-	m_buf = tmp;
-	m_size += size;
-	return iterator(m_buf + it_ind);
+	m_size += count;
+	return iterator(m_buf + index);
 }
 
 template <typename T, typename Alloc>	
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::insert(iterator it, T&& val) {
-	if(it < begin() || it >= end()) {
+	if (it < begin() || it > end()) {
 		throw out_of_range("error : out of range");
 	}
-	m_cap *= 2;
-	T* tmp = new T [m_cap];
-	size_t j = 0;
-	for (auto i = begin(); i != it; ++i) {
-		tmp[j++] = *i;
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
-	size_t it_ind = j;
-	tmp[j++] = std::move(val);
-	for (auto i = it; i != end(); ++i) {
-		tmp[j++] = *i;
+	else if (m_cap == m_size) {
+		_realloc(m_cap);
 	}
-	delete[] m_buf;
-	m_buf = tmp;
+	for (size_t i = m_size; i >= index + 1; --i) {
+		m_allocator.construct(m_buf + i, std::move(m_buf[i - 1]));
+		m_allocator.destroy(m_buf + i - 1);
+	}
+	m_allocator.construct(m_buf + index, std::move(val));
 	++m_size;
-	return iterator(m_buf + it_ind);
+	return iterator(m_buf + index);
 }
 
 template <typename T, typename Alloc>
 constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::insert(iterator it, std::initializer_list<T> init) {
-	if(it < begin() || it >= end()) {
+	if (it < begin() || it > end()) {
 		throw out_of_range("error : out of range");
 	}
-	m_size += init.size();
-	m_cap = m_size * 2;
-	T* tmp = new T [m_cap];
-	size_t j = 0;
-	for (auto i = begin(); i != it; ++i) {
-		tmp[j++] = *i;
+	size_t size = init.size();
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = m_size + size + 1;
+		m_buf = m_allocator.allocate(m_cap);
 	}
-	size_t it_ind = j;
-	for (auto& i : init) {
-		tmp[j++] = i;
+	else if (m_size >= m_cap) {
+		_realloc((m_cap + size) * 2);
 	}
-	for (auto i = it; i != end(); ++i) {
-		tmp[j++] = *i;
+	size_t count = m_size - index;
+	for (size_t i = m_size; i >= index + 1; --i) {
+		m_allocator.construct(m_buf + i + size - 1, std::move(m_buf[i - 1]));
+		m_allocator.destroy(m_buf + i - 1);
 	}
-	delete[] m_buf;
-	m_buf = tmp;
-	return iterator(m_buf + it_ind);
+	for (size_t i = 0; i < size; ++i) {
+		m_allocator.construct(m_buf + index + i, std::move(*(init.begin() + i)));
+	}
+	m_size += size;
+	return iterator(m_buf + index);
 }
-	
+
 template <typename T, typename Alloc>
-constexpr void Vector<T, Alloc>::assign(iterator first, iterator last) {
-	delete[] m_buf;
-	size_t size = 0;
-	for (auto i = first; i != last; ++i) {
-		++size;
-	}
-	m_size = size;
-	m_cap = m_size;
-	m_buf = new T [m_cap];
-	size_t j = 0;
-	for (auto i = first; i != last; ++i) {
-		m_buf[j++] = *i;
-	}
+constexpr typename Vector<T, Alloc>::allocator_type Vector<T, Alloc>::get_allocator() const noexcept {
+	return m_allocator;
 }
+
+// template <typename T, typename Alloc>
+// constexpr void Vector<T, Alloc>::assign(iterator first, iterator last) {
+// 	// delete[] m_buf;
+// 	for (size_t i = 0; i < m_size; ++i) {
+// 		m_allocator.destroy(m_buf + i);
+// 	}
+// 	m_allocator.deallocate(m_buf, m_cap);
+// 	size_t size = 0;
+// 	for (auto i = first; i != last; ++i) {
+// 		++size;
+// 	}
+// 	m_size = size;
+// 	m_cap = m_size;
+// 	// m_buf = new T [m_cap];
+// 	m_buf = m_allocator.allocate(m_cap);
+// 	size_t j = 0;
+// 	for (auto i = first; i != last; ++i) {
+// 		// m_buf[j++] = *i;
+// 		m_allocator.constuct(m_buf + j++, *i);
+// 	}
+// }
 
 #include "Vector_iterator.tpp"
 #include "Vector_const_iterator.tpp"
