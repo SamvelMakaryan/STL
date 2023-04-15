@@ -120,7 +120,6 @@ namespace my {
 			constexpr reverse_iterator operator--(int);
 			constexpr reverse_iterator operator+(size_t) const; 
 			constexpr reverse_iterator operator-(size_t) const;
-			constexpr size_t operator-(reverse_iterator&) const;
 			constexpr reverse_iterator& operator+=(size_t); 
 			constexpr reverse_iterator& operator-=(size_t); 
 			constexpr bool operator!=(const reverse_iterator&) const;
@@ -154,7 +153,6 @@ namespace my {
 			constexpr const_reverse_iterator operator--(int);
 			constexpr const_reverse_iterator operator+(size_t) const; 
 			constexpr const_reverse_iterator operator-(size_t) const;
-			constexpr size_t operator-(const_reverse_iterator&) const;
 			constexpr const_reverse_iterator& operator+=(size_t); 
 			constexpr const_reverse_iterator& operator-=(size_t); 
 			constexpr bool operator!=(const const_reverse_iterator&) const;

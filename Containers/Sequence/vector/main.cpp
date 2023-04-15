@@ -23,9 +23,12 @@ class A {
 int main() {
 	using namespace my;
 	Vector<A> ob {A(1),A(2),A(3),A(4)};
+	Vector<A> ob2 {A(11),A(22),A(33),A(44),A(44)};
+	ob.assign(ob2.begin(), ob2.end());
+	std::cout << ob.size() << " " << ob.capacity() << " ";
 	// std::vector<A> ob {A(1),A(2),A(3),A(4)};
 	// Vector<int> ob {1,2,3,4,6};
-	ob.emplace(ob.begin() + 4, 9);
+	// ob.emplace(ob.begin() + 4, 9);
 	// ob.insert(ob.begin() + 5, {9,9,9});
 	// Vector<int> ob2 {5,7,8,9,88};
 	// Vector<A> ob {A(1),A(2),A(3),A(4)};
