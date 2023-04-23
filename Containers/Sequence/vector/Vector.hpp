@@ -12,6 +12,11 @@ namespace my {
 	template <typename T, typename Alloc = Allocator<T>>
 	class Vector {
 	public:
+		class iterator;
+		class const_iterator;
+		class reverse_iterator;
+		class const_reverse_iterator;
+	public:
 		using value_type = T;
 		using allocator_type = Allocator<value_type>;
 		using size_type = size_t;
@@ -20,6 +25,10 @@ namespace my {
 		using const_reference = const value_type&;
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
+		using iterator = Vector<T, Alloc>::iterator;
+		using const_iterator =  Vector<T, Alloc>::const_iterator;
+		using reverse_iterator =  Vector<T, Alloc>::reverse_iterator;
+		using const_reverse_iterator =  Vector<T, Alloc>::const_reverse_iterator;
 	public:
 		constexpr Vector() noexcept(noexcept(Alloc()));
 		constexpr explicit Vector(const Alloc &) noexcept;
@@ -229,10 +238,10 @@ namespace my {
 	private:
 		constexpr void _realloc(size_t);
 	private:
+		Alloc m_allocator;
 		size_t m_size;
 		size_t m_cap;
 		T* m_buf;
-		Alloc m_allocator;
 	};
 	#include "Vector.tpp"
 	#include "Vector_bool.hpp"

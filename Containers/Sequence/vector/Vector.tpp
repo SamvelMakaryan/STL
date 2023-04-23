@@ -20,18 +20,16 @@ template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::Vector(size_t n, const Alloc& allocator)
  : m_size(n),
    m_cap(n),
-   m_allocator(allocator)
-{
-	m_buf = m_allocator.allocate(m_cap);
-}
+   m_allocator(allocator),
+   m_buf(m_allocator.allocate(m_cap)) {}
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::Vector(size_t n, const T& val, const Alloc& allocator)
  : m_size(n),
    m_cap(n),
-   m_allocator(allocator)
+   m_allocator(allocator),
+   m_buf(m_allocator.allocate(m_cap))
 {
-	m_buf = m_allocator.allocate(m_cap);
 	for (size_t i = 0; i < m_size; ++i) {
 		m_allocator.construct(m_buf + i, val);
 	}
@@ -39,10 +37,11 @@ constexpr Vector<T, Alloc>::Vector(size_t n, const T& val, const Alloc& allocato
 
 template <typename T, typename Alloc>
 constexpr Vector<T, Alloc>::Vector(const Vector& vec)
- : m_size(vec.m_size),
-   m_cap(vec.m_cap)
+ : m_allocator(vec.m_allocator),
+   m_size(vec.m_size),
+   m_cap(vec.m_cap),
+   m_buf(m_allocator.allocate(m_cap))
 {
-	m_buf = m_allocator.allocate(m_cap);
 	for (size_t i = 0; i < m_size; ++i) {
 		m_allocator.construct(m_buf + i, vec.m_buf[i]);
 	}
@@ -103,13 +102,13 @@ constexpr Vector<T, Alloc>::Vector(InputIterator first, InputIterator last, cons
  : m_allocator(allocator)
 {
 	size_t count = 0;
-	size_t j = 0;
 	for (auto i = first; i != last; ++i) {
 		++count;
 	}
 	m_cap = count;
 	m_size = count;
 	m_buf = m_allocator.allocate(m_cap);
+	size_t j = 0;
 	for (auto i = first ; i != last; ++i) {
 		m_allocator.construct(m_buf + j++, *i);
 	}
@@ -379,7 +378,6 @@ constexpr void Vector<T, Alloc>::assign(std::initializer_list<T> init) {
 	}
 	m_size = size;
 }
-
 
 template <typename T, typename Alloc>
 constexpr void Vector<T, Alloc>::assign(iterator first, iterator last) {
