@@ -1,9 +1,9 @@
-#ifndef REFERENCE_HPP
-#define REFERENCE_HPP
+#ifndef REFERENCE_HPP_
+#define REFERENCE_HPP_
 #include "Vector_bool.hpp"
 
 template <typename Alloc>
-constexpr  Vector<bool, Alloc>::reference::reference(bool* byte, size_t offset)
+constexpr  Vector<bool, Alloc>::reference::reference(unsigned char* byte, size_t offset)
  : byte(byte),
    offset(offset) {}
 
@@ -30,4 +30,4 @@ constexpr typename Vector<bool, Alloc>::reference::reference& Vector<bool, Alloc
     return operator=(static_cast<bool>(rhs));
 }
 
-#endif
+#endif //REFERENCE_HPP_

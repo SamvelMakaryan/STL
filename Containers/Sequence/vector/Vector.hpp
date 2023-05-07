@@ -1,5 +1,5 @@
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#ifndef VECTOR_HPP_
+#define VECTOR_HPP_
 #include <cstddef>
 #include <initializer_list>
 #include <limits>
@@ -32,15 +32,15 @@ namespace my {
 	public:
 		constexpr Vector() noexcept(noexcept(Alloc()));
 		constexpr explicit Vector(const Alloc &) noexcept;
-		constexpr explicit Vector(size_type, const Alloc & = Allocator<T>());
-		constexpr Vector(size_type, const T&, const Alloc & = Allocator<T>());
+		constexpr explicit Vector(size_type, const Alloc & = Alloc());
+		constexpr Vector(size_type, const T&, const Alloc & = Alloc());
 		constexpr Vector(const Vector &);
 		constexpr Vector(const Vector &, const Alloc &);
 		constexpr Vector(Vector &&) noexcept;
 		constexpr Vector(Vector &&, const Alloc &);
-		constexpr Vector(std::initializer_list<T>, const Alloc & = Allocator<T>());
+		constexpr Vector(std::initializer_list<T>, const Alloc & = Alloc());
 		template <typename InputIterator, typename = typename std::enable_if_t<!std::is_arithmetic_v<InputIterator>>>
-		constexpr Vector(InputIterator, InputIterator, const Alloc & = Allocator<T>());
+		constexpr Vector(InputIterator, InputIterator, const Alloc & = Alloc());
 		constexpr ~Vector();
 	public:
 		class iterator {
@@ -189,12 +189,12 @@ namespace my {
 		constexpr Vector& operator=(const Vector &);
 		constexpr Vector& operator=(Vector &&) noexcept;
 		constexpr Vector& operator=(std::initializer_list<T>);
-		constexpr bool operator<(Vector<T, Alloc> & vec) const;
-		constexpr bool operator>(Vector<T, Alloc> & vec) const;
-		constexpr bool operator>=(Vector<T, Alloc> & vec) const;
-		constexpr bool operator<=(Vector<T, Alloc> & vec) const;
+		constexpr bool operator<(Vector<T, Alloc> &) const;
+		constexpr bool operator>(Vector<T, Alloc> &) const;
+		constexpr bool operator>=(Vector<T, Alloc> &) const;
+		constexpr bool operator<=(Vector<T, Alloc> &) const;
 		constexpr bool operator==(const Vector<T, Alloc> &) const;
-		constexpr auto operator<=>(const Vector<T, Alloc> & oth) const;
+		constexpr auto operator<=>(const Vector<T, Alloc> &) const;
 		constexpr bool operator!=(const Vector<T, Alloc> &) const;
 		constexpr const T& operator[](size_t) const;
 		constexpr T& operator[](size_t);
@@ -203,13 +203,13 @@ namespace my {
 		constexpr iterator emplace(const_iterator, Args&&...);
 		template <typename... Args>
 		constexpr T& emplace_back(Args&&...);
-		constexpr iterator erase(iterator it);
-		constexpr iterator erase(iterator first, iterator last);
-		constexpr iterator insert(iterator it, const T& val);
-		constexpr iterator insert(iterator it, size_t n, const T& val);
-		constexpr iterator insert(iterator it, iterator first, iterator last);
-		constexpr iterator insert(iterator it, T&& val);
-		constexpr iterator insert(iterator it, std::initializer_list<T> init);
+		constexpr iterator erase(iterator);
+		constexpr iterator erase(iterator, iterator);
+		constexpr iterator insert(iterator, const T&);
+		constexpr iterator insert(iterator, size_t, const T&);
+		constexpr iterator insert(iterator, iterator, iterator);
+		constexpr iterator insert(iterator, T&&);
+		constexpr iterator insert(iterator, std::initializer_list<T>);
 		constexpr size_t size() const noexcept;
 		constexpr size_t max_size() const noexcept;
 		constexpr size_t capacity() const noexcept;
@@ -224,8 +224,8 @@ namespace my {
 		constexpr T& back();
 		constexpr const T* data() const noexcept;
 		constexpr T* data() noexcept;
-		constexpr void assign(size_t n, const T&);
-		constexpr void assign(iterator first, iterator last);
+		constexpr void assign(size_t, const T&);
+		constexpr void assign(iterator, iterator);
 		constexpr void assign(std::initializer_list<T>);
 		constexpr void push_back(const T&);
 		constexpr void push_back(T&&);    
@@ -247,4 +247,4 @@ namespace my {
 	#include "Vector_bool.hpp"
 }
 
-#endif
+#endif //VECTOR_HPP_

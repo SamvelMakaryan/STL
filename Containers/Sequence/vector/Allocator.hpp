@@ -1,5 +1,5 @@
-#ifndef ALLOCATOR_HPP
-#define ALLOCATOR_HPP
+#ifndef ALLOCATOR_HPP_
+#define ALLOCATOR_HPP_
 #include <utility>
 #include <cstddef>
 #include <limits>
@@ -36,4 +36,4 @@ namespace my {
     };
 }
 
-#endif
+#endif //ALLOCATOR_HPP_

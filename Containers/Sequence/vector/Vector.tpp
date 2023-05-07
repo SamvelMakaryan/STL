@@ -1,5 +1,5 @@
-#ifndef VECTOR_IMPLEMENTATION_TPP 
-#define VECTOR_IMPLEMENTATION_TPP
+#ifndef VECTOR_TPP_
+#define VECTOR_TPP_
 #include "Vector.hpp" 
 
 template <typename T, typename Alloc>
@@ -718,4 +718,4 @@ constexpr T& Vector<T, Alloc>::emplace_back(Args&&... args) {
 #include "Vector_reverse_iterator.tpp"
 #include "Vector_const_reverse_iterator.tpp"
 
-#endif
+#endif //VECTOR_TPP_

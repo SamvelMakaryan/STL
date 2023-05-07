@@ -21,14 +21,14 @@ constexpr Vector<bool, Alloc>::Vector(size_t n, const Alloc& allocator)
  : m_allocator(allocator),
    m_size(n),
    m_cap(n),
-   m_buf(m_allocator.allocate((m_cap + 7) / 8)) {}
+   m_buf((unsigned char*)m_allocator.allocate((m_cap + 7) / 8)) {}
 
 template <typename Alloc>
 constexpr Vector<bool, Alloc>::Vector(size_t n, bool val, const Alloc& allocator)
  : m_allocator(allocator),
    m_size(n),
    m_cap(n),
-   m_buf(m_allocator.allocate((m_cap + 7) / 8))
+   m_buf((unsigned char*)m_allocator.allocate((m_cap + 7) / 8))
 {
 	for (size_t i = 0; i < m_size; ++i) {
 		size_t offset = i % 8;
@@ -47,7 +47,7 @@ constexpr Vector<bool, Alloc>::Vector(std::initializer_list<bool> init, const Al
  : m_allocator(allocator),
    m_size(init.size()),
    m_cap(m_size),
-   m_buf(m_allocator.allocate((m_cap + 7) / 8)) 
+   m_buf((unsigned char*)m_allocator.allocate((m_cap + 7) / 8)) 
 {
 	size_t count = 0;
 	for (auto& i : init) {
@@ -55,7 +55,6 @@ constexpr Vector<bool, Alloc>::Vector(std::initializer_list<bool> init, const Al
 		size_t byte = count / 8; 
 		if (i) {
 			*(m_buf + byte) |= (1 << offset);
-			// std::cout << (*(m_buf + byte) |= (1 << offset)) << std::endl;
 		}
 		else  {
 			*(m_buf + byte) &= ~(1 << offset);
@@ -69,7 +68,7 @@ constexpr Vector<bool, Alloc>::Vector(const Vector<bool, Alloc>& oth)
  : m_allocator(oth.m_allocator),
    m_size(oth.m_size),
    m_cap(oth.m_cap),
-   m_buf(m_allocator.allocate((m_cap + 7) / 8))
+   m_buf((unsigned char*)m_allocator.allocate((m_cap + 7) / 8))
 {
 	for (int i = 0; i < m_size ; ++i) {
 		size_t offset = i % 8;
@@ -88,7 +87,7 @@ constexpr Vector<bool, Alloc>::Vector(const Vector<bool, Alloc>& oth, const Allo
  : m_allocator(allocator),
    m_size(oth.m_size),
    m_cap(oth.m_cap),
-   m_buf(m_allocator.allocate((m_cap + 7) / 8))
+   m_buf((unsigned char*)m_allocator.allocate((m_cap + 7) / 8))
 {
 	for (int i = 0; i < m_size ; ++i) {
 		size_t offset = i % 8;
@@ -137,7 +136,7 @@ constexpr Vector<bool, Alloc>::Vector(InputIterator first, InputIterator last, c
 	}
 	m_cap = count;
 	m_size = count;
-	m_buf = m_allocator.allocate((m_cap + 7) / 8);
+	m_buf = (unsigned char*)m_allocator.allocate((m_cap + 7) / 8);
 	size_t j = 0;
 	for (auto i = first; i != last; ++i, ++j) {
 		if (*i) {
@@ -151,7 +150,7 @@ constexpr Vector<bool, Alloc>::Vector(InputIterator first, InputIterator last, c
 
 template <typename Alloc>
 constexpr Vector<bool, Alloc>::~Vector() {
-	m_allocator.deallocate(m_buf, (m_cap+ 7) / 8);
+	m_allocator.deallocate((bool*)m_buf, (m_cap+ 7) / 8);
 	m_buf = nullptr;
 }
 
@@ -224,11 +223,11 @@ constexpr size_t Vector<bool, Alloc>::max_size() const noexcept {
 
 template <typename Alloc>
 constexpr void Vector<bool, Alloc>::_realloc(size_t n) {
-	bool* tmp = m_allocator.allocate((n + 7) / 8);
+	unsigned char* tmp = (unsigned char*)m_allocator.allocate((n + 7) / 8);
 	for (size_t i = 0; i < m_size; ++i) {
 		tmp[i] = m_buf[i];
 	}
-	m_allocator.deallocate(m_buf, (m_cap + 7) / 8);
+	m_allocator.deallocate((bool*)m_buf, (m_cap + 7) / 8);
 	m_buf = tmp;
 	m_cap = n;
 	tmp = nullptr;
@@ -283,10 +282,10 @@ constexpr Vector<bool, Alloc>& Vector<bool, Alloc>::operator=(const Vector& rhs)
 	if (this == &rhs) {
 		return *this;
 	}
-	m_allocator.deallocate(m_buf, (m_cap + 7) / 8);
+	m_allocator.deallocate((bool*)m_buf, (m_cap + 7) / 8);
 	m_size = rhs.m_size;
 	m_cap = rhs.m_cap;
-	m_buf = m_allocator.allocate((m_cap + 7) / 8);
+	m_buf = (unsigned char*)m_allocator.allocate((m_cap + 7) / 8);
 	for (int i = 0; i < m_size; ++i) {
 		m_buf[i] = rhs.m_buf[i];
 	}
@@ -295,7 +294,7 @@ constexpr Vector<bool, Alloc>& Vector<bool, Alloc>::operator=(const Vector& rhs)
 
 template <typename Alloc>
 constexpr Vector<bool, Alloc>& Vector<bool, Alloc>::operator=(Vector&& rhs) noexcept {
-	m_allocator.deallocate(m_buf, (m_cap + 7) / 8);
+	m_allocator.deallocate((bool*)m_buf, (m_cap + 7) / 8);
 	m_buf = rhs.m_buf;
 	m_size = rhs.m_size;
 	m_cap = rhs.m_cap;
@@ -307,11 +306,10 @@ constexpr Vector<bool, Alloc>& Vector<bool, Alloc>::operator=(Vector&& rhs) noex
 
 template <typename Alloc>
 constexpr Vector<bool, Alloc>& Vector<bool, Alloc>::operator=(std::initializer_list<bool> init) {
-	// delete[] m_buf;
-	m_allocator.deallocate(m_buf, (m_cap + 7) / 8);
+	m_allocator.deallocate((bool*)m_buf, (m_cap + 7) / 8);
 	m_size = init.size();
 	m_cap = m_size;
-	m_buf = m_allocator.allocate(m_buf, (m_cap + 7) / 8);
+	m_buf = (unsigned char*)m_allocator.allocate((m_cap + 7) / 8);
 	size_t count = 0;
 	for (auto& val : init) {
 		size_t byte = count / 8;
@@ -390,12 +388,12 @@ constexpr void Vector<bool, Alloc>::shrink_to_fit() {
 }
 
 template <typename Alloc>
-constexpr const bool* Vector<bool, Alloc>::data() const noexcept {
+constexpr const unsigned char* Vector<bool, Alloc>::data() const noexcept {
 	return m_buf;
 }
 
 template <typename Alloc>
-constexpr bool* Vector<bool, Alloc>::data() noexcept {
+constexpr unsigned char* Vector<bool, Alloc>::data() noexcept {
 	return m_buf;
 }
 
@@ -426,7 +424,7 @@ template <typename Alloc>
 constexpr void Vector<bool, Alloc>::push_back(bool val) {
 	if (m_cap == 0) {
 		m_cap = 1;
-		m_buf = m_allocator.allocate((m_cap + 7) / 8);
+		m_buf = (unsigned char*)m_allocator.allocate((m_cap + 7) / 8);
 	}
 	else if (m_size == m_cap) {
 		_realloc(m_cap * 2);
@@ -479,14 +477,111 @@ constexpr Vector<bool, Alloc>::const_iterator Vector<bool, Alloc>::cbegin() cons
 	return const_iterator(m_buf);
 }
 		
-	
 template <typename Alloc>
 constexpr Vector<bool, Alloc>::const_iterator Vector<bool, Alloc>::cend() const noexcept {
 	return const_iterator(m_buf, m_size);
 }
 
 template <typename Alloc>
+constexpr Vector<bool, Alloc>::reverse_iterator Vector<bool, Alloc>::rbegin() const noexcept {
+	return reverse_iterator(m_buf + (m_size - 1) / 8, m_size - 1);
+}
+
+template <typename Alloc>
+constexpr Vector<bool, Alloc>::reverse_iterator Vector<bool, Alloc>::rend() const noexcept {
+	return reverse_iterator(m_buf, 0);
+}
+
+template <typename Alloc>
+constexpr Vector<bool, Alloc>::const_reverse_iterator Vector<bool, Alloc>::crbegin() const noexcept {
+	return const_reverse_iterator(m_buf + (m_size - 1) / 8, m_size - 1);
+}
+
+template <typename Alloc>
+constexpr Vector<bool, Alloc>::const_reverse_iterator Vector<bool, Alloc>::crend() const noexcept {
+	return const_reverse_iterator(m_buf, 0);
+}
+
+template <typename Alloc>
 constexpr Vector<bool, Alloc>::allocator_type Vector<bool, Alloc>::get_allocator() const noexcept {
 	return m_allocator;
 }
-#endif
+//chi ashxatum end
+template <typename Alloc>
+constexpr typename Vector<bool, Alloc>::iterator Vector<bool, Alloc>::insert(iterator it, const bool& val) {
+	if (it < begin() || it > end()) {
+		throw out_of_range("error : out of range");
+	}
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = 1;
+		m_buf = (unsigned char*)m_allocator.allocate(m_cap);
+	}
+	else if (m_size == m_cap) {
+		_realloc(m_cap * 2);
+	}
+	for (size_t i = m_size; i >= index + 1; --i) {
+		operator[](i) = std::move(operator[](i - 1));
+	}
+	operator[](index) = val;
+	++m_size;
+	return iterator(m_buf + (index + 7) / 8, index % 8);
+}
+// //chi 
+template <typename Alloc>
+constexpr typename Vector<bool, Alloc>::iterator Vector<bool, Alloc>::insert(iterator it, size_t n, const bool& val) {
+	if (it < begin() || it > end()) {
+		throw out_of_range("error : out of range");
+	}
+	size_t index = std::distance(it, begin());
+	if (m_cap == 0) {
+		m_cap = n + 1;
+		m_buf = (unsigned char*)m_allocator.allocate(m_cap);
+	}
+	else if (m_size + n >= m_cap) {
+		_realloc((m_cap + n) * 2);
+	}
+	for (size_t i = m_size; i >= index + 1 ; --i) {
+		operator[](i + n - 1) = std::move(operator[](i - 1)); 
+	}
+	for (size_t i = index; i < index + n; ++i) {
+		operator[](i) = val;
+	}
+	m_size += n;
+	return iterator(m_buf + (index + 7) / 8, index % 8);
+}
+//kisat
+template <typename Alloc>
+constexpr typename Vector<bool, Alloc>::iterator Vector<bool, Alloc>::insert(iterator, iterator, iterator) {}
+//kisat
+template <typename Alloc>
+constexpr typename Vector<bool, Alloc>::iterator Vector<bool, Alloc>::insert(iterator, std::initializer_list<bool>) {}
+//chi ashxatum
+template <typename Alloc>
+template <typename... Args>
+constexpr bool Vector<bool, Alloc>::emplace_back(Args&&... args) {
+	push_back((bool)args...);
+	return back();
+}
+
+template <typename Alloc>
+template <typename... Args>
+constexpr typename Vector<bool, Alloc>::iterator Vector<bool, Alloc>::emplace(iterator it, Args&&... args) {
+	return insert(it, bool(args...));
+}
+
+template <typename Alloc>
+constexpr void Vector<bool, Alloc>::flip() {
+	for (size_t i = 0; i < m_size; ++i) {
+		 operator[](i) = !operator[](i);
+	}
+}
+
+template <typename Alloc>
+constexpr void Vector<bool, Alloc>::swap(reference first, reference second) {
+	bool tmp = first;
+	first = second;
+	second = tmp;
+}
+
+#endif //VECTOR_BOOL_TPP_

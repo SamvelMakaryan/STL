@@ -1,5 +1,5 @@
-#ifndef VECTOR_REVERSE_ITERATOR_TPP
-#define VECTOR_REVERSE_ITERATOR_TPP
+#ifndef VECTOR_REVERSE_ITERATOR_TPP_
+#define VECTOR_REVERSE_ITERATOR_TPP_
 #include "Vector.hpp"
 
 template <typename T, typename Alloc>
@@ -107,4 +107,4 @@ constexpr T& Vector<T, Alloc>::reverse_iterator::operator*() {
 	return *ptr;
 }
 
-#endif
+#endif //VECTOR_REVERSE_ITERATOR_TPP_

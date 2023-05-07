@@ -1,5 +1,5 @@
-#ifndef VECTOR_ITERATOR_TPP
-#define VECTOR_ITERATOR_TPP
+#ifndef VECTOR_ITERATOR_TPP_
+#define VECTOR_ITERATOR_TPP_
 #include "Vector.hpp"
 
 template <typename T, typename Alloc>
@@ -116,4 +116,4 @@ constexpr T& Vector<T, Alloc>::iterator::operator*() {
 	return *ptr;
 }
 
-#endif
+#endif //VECTOR_ITERATOR_TPP_

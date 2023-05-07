@@ -22,10 +22,17 @@ class A {
 
 int main() {
 	using namespace my;
-	Vector<bool> a {1,1,1,0,0,1};
-	// Vector<bool> a;
-	// a.resize(5,1);
-	for (int i = 0; i < a.size(); ++i) {
-		std::cout << a[i] << " ";
+	// std::vector<bool> b{1,0,1,1,0,1};
+	// b.push_back(true);
+	Vector<bool> a {1,1,1,0,0,1,1,0,1,1,1};
+	for (auto i : a) {
+		std::cout << i << " ";
 	}
+	std::cout << std::endl;
+	// a.insert(a.begin(), 3, true);
+	// std::cout << a.emplace_back(true);
+	for (auto i : a) {
+		std::cout << i << " ";
+	}
+
 }

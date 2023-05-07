@@ -1,17 +1,17 @@
-#ifndef VECTOR_BOOL_ITERATOR
-#define VECTOR_BOOL_ITERATOR
+#ifndef VECTOR_BOOL_ITERATOR_
+#define VECTOR_BOOL_ITERATOR_
 #include "Vector_bool.hpp"
 
 template <typename Alloc>
 constexpr Vector<bool, Alloc>::iterator::iterator(const iterator&) = default;
 
 template <typename Alloc>
-constexpr Vector<bool, Alloc>::iterator::iterator(bool* ptr)
+constexpr Vector<bool, Alloc>::iterator::iterator(unsigned char* ptr)
  : ptr(ptr),
    index(0) {}
 
 template <typename Alloc>
-constexpr Vector<bool, Alloc>::iterator::iterator(bool* ptr, size_t index)
+constexpr Vector<bool, Alloc>::iterator::iterator(unsigned char* ptr, size_t index)
  : ptr(ptr),
    index(index) {}
 
@@ -56,6 +56,12 @@ constexpr Vector<bool, Alloc>::iterator Vector<bool, Alloc>::iterator::operator-
 }
 
 template <typename Alloc>
+constexpr size_t Vector<bool, Alloc>::iterator::operator-(iterator oth) const {
+	return (oth.ptr - ptr) + (oth.index - index);
+	return (oth.ptr - ptr) + (oth.index - index);
+}
+
+template <typename Alloc>
 constexpr Vector<bool, Alloc>::iterator& Vector<bool, Alloc>::iterator::operator+=(size_t n) {  
     index += n; 
     return *this;
@@ -79,10 +85,15 @@ constexpr bool Vector<bool, Alloc>::iterator::operator==(const iterator& oth) co
 
 template <typename Alloc>
 constexpr bool Vector<bool, Alloc>::iterator::operator<(const iterator& oth) const { 
-    if (*(*this) < *oth) { 
+    if (ptr < oth.ptr) { 
         return true;
-    } 
-    return false;
+    }
+    else if (ptr > oth.ptr) { 
+        return false;
+    }
+    else {
+        return (index < oth.index);
+    }
 }
 
 template <typename Alloc>
@@ -110,4 +121,4 @@ constexpr Vector<bool,Alloc>::const_reference Vector<bool, Alloc>::iterator::ope
     return reference(ptr, index);
 }
 
-#endif
+#endif //VECTOR_BOOL_ITERATOR_
