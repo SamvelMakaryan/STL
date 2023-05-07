@@ -1,7 +1,6 @@
 #ifndef STACK_HPP_
 #define STACK_HPP_
 #include <deque>
-#include<cstddef>
 
 namespace my {
     template <typename T, typename Container = std::deque<T>>
