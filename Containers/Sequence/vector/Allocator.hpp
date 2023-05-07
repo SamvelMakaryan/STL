@@ -9,8 +9,8 @@ namespace my {
     template <typename T>
     class Allocator {
     public:
-        using value_type = T;
-		using size_type = size_t;
+        using value_type      = T;
+		using size_type       = size_t;
 		using difference_type = std::ptrdiff_t;
     public:
         constexpr Allocator() noexcept = default;

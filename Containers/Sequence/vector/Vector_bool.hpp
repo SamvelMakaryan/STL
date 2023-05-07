@@ -16,17 +16,17 @@ public:
 	class reverse_iterator;
 	class const_reverse_iterator;
 public:
-	using value_type = bool;
-	using allocator_type = Allocator<value_type>;
-	using size_type = size_t;	
-	using difference_type = std::ptrdiff_t;
-	using pointer = value_type*;
-	using const_pointer = const pointer;
-	using reference = Vector<bool, Alloc>::reference;
-	using const_reference = bool;
-	using iterator = Vector<bool, Alloc>::iterator;
-	using const_iterator = Vector<bool, Alloc>::const_iterator;
-	using reverse_iterator = Vector<bool, Alloc>::reverse_iterator;
+	using value_type 	 		 = bool;
+	using allocator_type 		 = Allocator<value_type>;
+	using size_type 	 		 = size_t;	
+	using difference_type 		 = std::ptrdiff_t;
+	using pointer 		  		 = value_type*;
+	using const_pointer   		 = const pointer;
+	using reference 	  		 = Vector<bool, Alloc>::reference;
+	using const_reference 		 = bool;
+	using iterator 				 = Vector<bool, Alloc>::iterator;
+	using const_iterator 		 = Vector<bool, Alloc>::const_iterator;
+	using reverse_iterator 		 = Vector<bool, Alloc>::reverse_iterator;
 	using reverse_const_iterator = Vector<bool, Alloc>::const_reverse_iterator;
 public:
 	constexpr Vector() noexcept(noexcept(Alloc()));
@@ -59,13 +59,13 @@ public:
 	class iterator {
 	public:
 		using iterator_category = std::random_access_iterator_tag;
-		using value_type = bool;
-		using size_type = size_t;
-		using difference_type = std::ptrdiff_t;
-		using reference = Vector<bool, Alloc>::reference;
-		using const_reference = bool;
-		using pointer = value_type*;
-		using const_pointer = const value_type*;
+		using value_type 		= bool;
+		using size_type 		= size_t;
+		using difference_type 	= std::ptrdiff_t;
+		using reference 		= Vector<bool, Alloc>::reference;
+		using const_reference 	= bool;
+		using pointer 			= value_type*;
+		using const_pointer 	= const value_type*;
 	public:
 		constexpr iterator(const iterator&);
 		constexpr iterator(unsigned char*);
@@ -95,13 +95,13 @@ public:
 	class const_iterator {
 	public:
 		using iterator_category = std::random_access_iterator_tag;
-		using value_type = bool;
-		using size_type = size_t;
-		using difference_type = std::ptrdiff_t;
-		using reference = Vector<bool, Alloc>::reference;
-		using const_reference = bool;
-		using pointer = value_type*;
-		using const_pointer = const value_type*;
+		using value_type 		= bool;
+		using size_type 		= size_t;
+		using difference_type 	= std::ptrdiff_t;
+		using reference 		= Vector<bool, Alloc>::reference;
+		using const_reference 	= bool;
+		using pointer 			= value_type*;
+		using const_pointer 	= const value_type*;
 	public:
 		constexpr const_iterator(const const_iterator&);
 		constexpr const_iterator(const unsigned char*);
@@ -130,13 +130,13 @@ public:
 	class reverse_iterator {
 	public:
 		using iterator_category = std::random_access_iterator_tag;
-		using value_type = bool;
-		using size_type = size_t;
-		using difference_type = std::ptrdiff_t;
-		using reference = Vector<bool, Alloc>::reference;
-		using const_reference = bool;
-		using pointer = value_type*;
-		using const_pointer = const value_type*;
+		using value_type 		= bool;
+		using size_type 		= size_t;
+		using difference_type 	= std::ptrdiff_t;
+		using reference 		= Vector<bool, Alloc>::reference;
+		using const_reference 	= bool;
+		using pointer 			= value_type*;
+		using const_pointer 	= const value_type*;
 	public:
 		constexpr reverse_iterator(const reverse_iterator&);
 		constexpr reverse_iterator(unsigned char*);
@@ -165,13 +165,13 @@ public:
 	class const_reverse_iterator {
 	public:
 		using iterator_category = std::random_access_iterator_tag;
-		using value_type = bool;
-		using size_type = size_t;
-		using difference_type = std::ptrdiff_t;
-		using reference = Vector<bool, Alloc>::reference;
-		using const_reference = bool;
-		using pointer = value_type*;
-		using const_pointer = const value_type*;
+		using value_type 		= bool;
+		using size_type 		= size_t;
+		using difference_type 	= std::ptrdiff_t;
+		using reference 		= Vector<bool, Alloc>::reference;
+		using const_reference 	= bool;
+		using pointer 			= value_type*;
+		using const_pointer 	= const value_type*;
 	public:
 		constexpr const_reverse_iterator(const const_reverse_iterator&);
 		constexpr const_reverse_iterator(const unsigned char*);

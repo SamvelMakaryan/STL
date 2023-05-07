@@ -17,18 +17,18 @@ namespace my {
 		class reverse_iterator;
 		class const_reverse_iterator;
 	public:
-		using value_type = T;
-		using allocator_type = Allocator<value_type>;
-		using size_type = size_t;
-		using difference_type = std::ptrdiff_t;
-		using reference = value_type&;
-		using const_reference = const value_type&;
-		using pointer = value_type*;
-		using const_pointer = const value_type*;
-		using iterator = Vector<T, Alloc>::iterator;
-		using const_iterator =  Vector<T, Alloc>::const_iterator;
-		using reverse_iterator =  Vector<T, Alloc>::reverse_iterator;
-		using const_reverse_iterator =  Vector<T, Alloc>::const_reverse_iterator;
+		using value_type 			 = T;
+		using allocator_type 		 = Allocator<value_type>;
+		using size_type 			 = size_t;
+		using difference_type 		 = std::ptrdiff_t;
+		using reference 			 = value_type&;
+		using const_reference 		 = const value_type&;
+		using pointer 				 = value_type*;
+		using const_pointer          = const value_type*;
+		using iterator               = Vector<T, Alloc>::iterator;
+		using const_iterator         =  Vector<T, Alloc>::const_iterator;
+		using reverse_iterator       =  Vector<T, Alloc>::reverse_iterator;
+		using const_reverse_iterator = Vector<T, Alloc>::const_reverse_iterator;
 	public:
 		constexpr Vector() noexcept(noexcept(Alloc()));
 		constexpr explicit Vector(const Alloc &) noexcept;
@@ -46,13 +46,13 @@ namespace my {
 		class iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type        = T;
+			using size_type 		= size_t;
+			using difference_type   = std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr iterator(T*);
 			constexpr iterator(const iterator&);
@@ -80,13 +80,13 @@ namespace my {
 		class const_iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr const_iterator(const T*);
 			constexpr const_iterator(const iterator&);
@@ -113,13 +113,13 @@ namespace my {
 		class reverse_iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr reverse_iterator(T*);
 		public:
@@ -145,13 +145,13 @@ namespace my {
 		class const_reverse_iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr const_reverse_iterator(const T*);
 			constexpr const_reverse_iterator(const iterator&);

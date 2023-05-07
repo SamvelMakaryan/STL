@@ -1,16 +1,17 @@
 #ifndef STACK_HPP_
 #define STACK_HPP_
 #include <deque>
+#include <utility>
 
 namespace my {
     template <typename T, typename Container = std::deque<T>>
     class Stack {
     public:
-        using container_type = Container;
-        using value_type = typename Container::value_type;
-        using size_type = typename Container::size_type;
-        using reference = typename Container::reference;
+        using value_type      = typename Container::value_type;
+        using size_type       = typename Container::size_type;
+        using reference       = typename Container::reference;
         using const_reference = typename Container::const_reference;
+        using container_type  = Container;
     public:
         Stack();
         explicit Stack(const Container&);

@@ -105,7 +105,7 @@ void Stack<T, Container>::pop() {
 template <typename T, typename Container>
 template <typename... Args>
 decltype(auto) Stack<T, Container>::emplace(Args&&... args) {
-    return m_cont.emplace_back((args)...);
+    return m_cont.emplace_back(std::forward<Args>(args)...);
 }
 
 template <typename T, typename Container>

@@ -13,26 +13,26 @@ namespace my {
         class reverse_iterator;
         class const_reverse_iterator;
     public:
-        using value_type = T;
-        using size_type = size_t;
-        using reference = value_type&;
-        using const_reference = const value_type&;
-        using pointer = value_type*;
-        using const_pointer = const value_type*;
-        using iterator = Array<T, N>::iterator;
-        using const_iterator = Array<T, N>::const_iterator;
-        using reverse_iterator = Array<T, N>::reverse_iterator;
+        using value_type 			 = T;
+        using size_type 			 = size_t;
+        using reference 			 = value_type&;
+        using const_reference 		 = const value_type&;
+        using pointer 				 = value_type*;
+        using const_pointer 		 = const value_type*;
+        using iterator 				 = Array<T, N>::iterator;
+        using const_iterator 		 = Array<T, N>::const_iterator;
+        using reverse_iterator 		 = Array<T, N>::reverse_iterator;
         using const_reverse_iterator = Array<T, N>::const_reverse_iterator;
     public:
         class iterator {
             using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
         public:        
             constexpr iterator(T*);
 			constexpr iterator(const iterator&);
@@ -60,13 +60,13 @@ namespace my {
         class const_iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr const_iterator(const T*);
 			constexpr const_iterator(const iterator&);
@@ -93,13 +93,13 @@ namespace my {
         class reverse_iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr reverse_iterator(T*);
 		public:
@@ -125,13 +125,13 @@ namespace my {
 		class const_reverse_iterator {
 		public:
 			using iterator_category = std::random_access_iterator_tag;
-			using value_type = T;
-			using size_type = size_t;
-			using difference_type = std::ptrdiff_t;
-			using reference = value_type&;
-			using const_reference = const value_type&;
-			using pointer = value_type*;
-			using const_pointer = const value_type*;
+			using value_type 		= T;
+			using size_type 		= size_t;
+			using difference_type 	= std::ptrdiff_t;
+			using reference 		= value_type&;
+			using const_reference 	= const value_type&;
+			using pointer 			= value_type*;
+			using const_pointer 	= const value_type*;
 		public:
 			constexpr const_reverse_iterator(const T*);
 			constexpr const_reverse_iterator(const iterator&);
