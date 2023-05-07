@@ -34,5 +34,4 @@ int main() {
 	for (auto i : a) {
 		std::cout << i << " ";
 	}
-
 }

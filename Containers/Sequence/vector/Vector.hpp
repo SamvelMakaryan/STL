@@ -245,6 +245,7 @@ namespace my {
 	};
 	#include "Vector.tpp"
 	#include "Vector_bool.hpp"
+	#include "Vector_deduction_guides.tpp"
 }
 
 #endif //VECTOR_HPP_
