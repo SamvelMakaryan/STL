@@ -2,6 +2,7 @@
 #define ARRAY_HPP_
 #include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include "Exception.hpp"
 
 namespace my {

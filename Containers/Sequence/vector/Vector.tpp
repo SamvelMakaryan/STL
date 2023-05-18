@@ -697,7 +697,7 @@ constexpr typename Vector<T, Alloc>::iterator Vector<T, Alloc>::emplace(const_it
 		m_allocator.construct(m_buf + i, std::move(m_buf[i - 1]));
 		m_allocator.destroy(m_buf + i - 1);
 	}
-	m_allocator.construct(m_buf + index, (args)...);
+	m_allocator.construct(m_buf + index, std::forward<Args>(args)...);
 	++m_size;
 	return iterator(m_buf + index);
 }
@@ -708,7 +708,7 @@ constexpr T& Vector<T, Alloc>::emplace_back(Args&&... args) {
 	if (m_size == m_cap) {
 		_realloc(m_cap * 2);
 	}
-	m_allocator.construct(m_buf + m_size, (args)...);
+	m_allocator.construct(m_buf + m_size, std::forward<Args>(args)...);
 	++m_size;
 	return m_buf[m_size - 1];
 }

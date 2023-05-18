@@ -111,6 +111,12 @@ namespace my {
         Forward_List& operator=(const Forward_List&);
         Forward_List& operator=(Forward_List&&) noexcept(std::allocator_traits<Alloc>::is_always_equal::value);
         Forward_List& operator=(std::initializer_list<T>);
+        bool operator==(const Forward_List&) const;
+        bool operator!=(const Forward_List&) const;
+        bool operator<(const Forward_List&) const;
+        bool operator>(const Forward_List&) const;
+        bool operator<=(const Forward_List&) const;
+        bool operator>=(const Forward_List&) const;
     public:
         void assign(size_type, const T&);
         void assign(std::initializer_list<T>);

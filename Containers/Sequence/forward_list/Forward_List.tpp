@@ -496,4 +496,61 @@ void Forward_List<T, Alloc>::resize(size_type n, const value_type& val) {
     }
 }
 
+template <typename T, typename Alloc>
+bool Forward_List<T, Alloc>::operator==(const Forward_List& oth) const {
+    node_base* tmp1 = m_head.m_next;
+    node_base* tmp2 = oth.m_head.m_next;
+    while (tmp1 && tmp2) {
+        if (static_cast<Node*>(tmp1) -> m_data != static_cast<Node*>(tmp2) -> m_data) {
+            return false;
+        }
+        tmp1 = tmp1 -> m_next;
+        tmp2 = tmp2 -> m_next;
+    }
+    if (tmp1 || tmp2) {
+        return false;
+    }
+    return true;
+}
+
+template <typename T, typename Alloc>
+bool Forward_List<T, Alloc>::operator!=(const Forward_List& oth) const {
+    return !(*this == oth);
+}
+
+template <typename T, typename Alloc>
+bool Forward_List<T, Alloc>::operator<(const Forward_List& oth)  const {
+    node_base* tmp1 = m_head.m_next;
+    node_base* tmp2 = oth.m_head.m_next;
+    while (tmp1 && tmp2) {
+        if (static_cast<Node*>(tmp1) -> m_data < static_cast<Node*>(tmp2) -> m_data) {
+            return true;
+        }
+        else if (static_cast<Node*>(tmp1) -> m_data > static_cast<Node*>(tmp2) -> m_data) {
+            return false;
+        }
+        tmp1 = tmp1 -> m_next;
+        tmp2 = tmp2 -> m_next;
+    }
+    if (!tmp2) {
+        return false;
+    }
+    return true;
+}
+
+template <typename T, typename Alloc>
+bool Forward_List<T, Alloc>::operator>(const Forward_List& oth) const {
+    return !(*this < oth || *this == oth);
+}
+
+template <typename T, typename Alloc>
+bool Forward_List<T, Alloc>::operator<=(const Forward_List& oth) const {
+    return !(*this > oth);
+}
+
+template <typename T, typename Alloc>
+bool Forward_List<T, Alloc>::operator>=(const Forward_List& oth) const {
+    return !(*this < oth);
+}
+
 #endif //FORWARD_LIST_TPP_

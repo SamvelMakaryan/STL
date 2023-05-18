@@ -1,9 +1,12 @@
 #ifndef VECTOR_HPP_
 #define VECTOR_HPP_
-#include <cstddef>
 #include <initializer_list>
-#include <limits>
 #include <type_traits>
+#include <algorithm>
+#include <iterator>
+#include <cstddef>
+#include <limits>
+#include <utility>
 #include <compare>
 #include "Allocator.hpp"
 #include "Exception.hpp"
@@ -26,8 +29,8 @@ namespace my {
 		using pointer 				 = value_type*;
 		using const_pointer          = const value_type*;
 		using iterator               = Vector<T, Alloc>::iterator;
-		using const_iterator         =  Vector<T, Alloc>::const_iterator;
-		using reverse_iterator       =  Vector<T, Alloc>::reverse_iterator;
+		using const_iterator         = Vector<T, Alloc>::const_iterator;
+		using reverse_iterator       = Vector<T, Alloc>::reverse_iterator;
 		using const_reverse_iterator = Vector<T, Alloc>::const_reverse_iterator;
 	public:
 		constexpr Vector() noexcept(noexcept(Alloc()));
