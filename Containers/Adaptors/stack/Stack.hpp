@@ -6,6 +6,8 @@
 namespace my {
     template <typename T, typename Container = std::deque<T>>
     class Stack {
+        static_assert(std::is_same_v<typename Container::value_type>,
+        "my::Stack should have the same value_type as its underlying container");
     public:
         using value_type      = typename Container::value_type;
         using size_type       = typename Container::size_type;

@@ -14,6 +14,10 @@
 namespace my {
 	template <typename T, typename Alloc = Allocator<T>>
 	class Vector {
+		static_assert(std::is_same_v<typename std::remove_cv_t<T>, T>,
+        "my::Forward_List must have a non-const, non-volatile value_type");
+        static_assert(std::is_same_v<typename Alloc::value_type, T>,
+        "my::Forward_List must have the same value_type as its allocator");
 	public:
 		class iterator;
 		class const_iterator;

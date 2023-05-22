@@ -8,6 +8,8 @@
 namespace my {
     template <typename T, typename Container = std::vector<T>, typename Compare = std::less<typename Container::value_type>>
     class Priority_Queue {
+        static_assert(std::is_same_v<typename Container::value_type>,
+        "my::Priority_Queue should have the same value_type as its underlying container");
     public:
         using value_type      = typename Container::value_type;
         using reference       = typename Container::reference;
