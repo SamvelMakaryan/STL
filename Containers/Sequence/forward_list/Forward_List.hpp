@@ -188,6 +188,7 @@ namespace my {
     #include "Forward_List.tpp"
     #include "Iterator.tpp"
     #include "Const_iterator.tpp"
+	#include "Forward_List_deduction_guides.tpp"
 }
 
 #endif //FORWARD_LIST_HPP_   
