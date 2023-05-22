@@ -553,4 +553,228 @@ bool Forward_List<T, Alloc>::operator>=(const Forward_List& oth) const {
     return !(*this < oth);
 }
 
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::sort() {
+    sort(std::less<T>());
+}
+
+template <typename T, typename Alloc>
+template <typename Compare>
+void Forward_List<T, Alloc>::sort(Compare comp) {
+    if (!m_head || !m_head->m_next) {
+        return;
+    }
+    
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List&& oth) {
+    splice_after(it, oth, oth.before_begin());
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List& oth) {
+    splice_after(it, std::move(oth), oth.before_begin());
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List& oth, iterator oth_it) {
+    splice_after(it, std::move(oth), oth_it);
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List&& oth, iterator oth_it) {
+    auto tmp1 = oth_it;
+    auto tmp2 = oth_it;
+    ++tmp1;
+    while (tmp1 != end()) {
+        ++tmp1;
+        ++tmp2;
+    }
+    splice_after(it, oth, oth_it, tmp2);
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List& oth, iterator first, iterator last) {
+    splice_after(it, std::move(oth), first, last);
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List&& oth, iterator first, iterator last) {
+    long distance = std::distance(before_begin(), it) - 1;
+    long oth_distance = std::distance(oth.before_begin(), first) - 1;
+    long difference = std::distance(first, last) - 1;
+    if (difference == -1) {
+        return;
+    }
+    if (distance == -1) {
+        node_base* tmp1 = m_head.m_next;
+        node_base* tmp2 = oth.m_head.m_next;
+        for (long i = 0; i < oth_distance; ++i) {
+            tmp2 = tmp2 -> m_next;
+        }
+        node_base* old_oth = tmp2;
+        node_base* new_head = tmp2 -> m_next;
+        for (long i = 0; i < difference; ++i) {
+            tmp2 = tmp2 -> m_next;
+        }
+        old_oth -> m_next = tmp2 -> m_next;
+        tmp2 -> m_next = m_head.m_next;
+        m_head.m_next = old_oth;
+        return;
+    }
+    node_base* tmp1 = m_head.m_next;
+    for (int i = 0; i < distance; ++i) {
+        tmp1 = tmp1 -> m_next;
+    }
+    node_base* old = tmp1 -> m_next;
+    node_base* tmp2 = oth.m_head.m_next;
+    for (long i = 0; i < oth_distance; ++i) {
+        tmp2 = tmp2 -> m_next;
+    }
+    node_base* oth_old = tmp2;
+    for (long i = 0; i < difference; ++i) {
+        tmp1 -> m_next = tmp2;
+        tmp2 = tmp2 -> m_next;
+        tmp1 = tmp1 -> m_next;
+    }
+    oth.m_head.m_next = oth_old;
+    oth_old -> m_next = tmp2; 
+    while (old) {
+        tmp1 -> m_next = old;
+        tmp1 = tmp1 -> m_next;
+        old = old -> m_next;
+    }
+}
+
+template <typename T, typename Alloc>
+typename Forward_List<T, Alloc>::size_type Forward_List<T, Alloc>::remove(const T& val) {
+    if (!m_head.m_next) {
+        return 0;
+    }
+    size_type count = 0;
+    while (m_head.m_next && static_cast<Node*>(m_head.m_next) -> m_data == val) {
+        pop_front();
+        ++count;
+    }
+    node_base* tmp1 = m_head.m_next -> m_next;
+    node_base* tmp2 = m_head.m_next;
+    while(tmp1) {
+        node_base* old = tmp1;
+        if (static_cast<Node*>(tmp1) -> m_data == val) {
+            tmp2 -> m_next = tmp1 -> m_next;
+            tmp1 = tmp1 -> m_next;
+            m_allocator.destroy(static_cast<Node*>(old));
+            m_allocator.deallocate(static_cast<Node*>(old), sizeof(Node));
+            ++count;
+        }
+        else {
+            tmp1 = tmp1 -> m_next;
+            tmp2 = tmp2 -> m_next;
+        }
+    }
+    return count;
+}
+
+template <typename T, typename Alloc>
+template <typename UnaryPredicat>
+typename Forward_List<T, Alloc>::size_type Forward_List<T, Alloc>::remove(UnaryPredicat p) {
+    if (!m_head.m_next) {
+        return 0;
+    }
+    size_type count = 0;
+    while (m_head.m_next && p(static_cast<Node*>(m_head.m_next) -> m_data)) {
+        pop_front();
+        ++count;
+    }
+    node_base* tmp1 = m_head.m_next -> m_next;
+    node_base* tmp2 = m_head.m_next;
+    while(tmp1) {
+        node_base* old = tmp1;
+        if (p(static_cast<Node*>(tmp1) -> m_data)) {
+            tmp2 -> m_next = tmp1 -> m_next;
+            tmp1 = tmp1 -> m_next;
+            m_allocator.destroy(static_cast<Node*>(old));
+            m_allocator.deallocate(static_cast<Node*>(old), sizeof(Node));
+            ++count;
+        }
+        else {
+            tmp1 = tmp1 -> m_next;
+            tmp2 = tmp2 -> m_next;
+        }
+    }
+    return count;
+}
+
+
+template <typename T, typename Alloc>
+typename Forward_List<T, Alloc>::size_type Forward_List<T, Alloc>::unique() {
+    if (!m_head.m_next) {
+        return 0;
+    }
+    size_type count = 0;
+    node_base* tmp1 = m_head.m_next -> m_next;
+    node_base* tmp2 = m_head.m_next;
+    while (tmp1) {
+        node_base* old = tmp1;
+        if (static_cast<Node*>(tmp1) -> m_data == static_cast<Node*>(tmp2) -> m_data) {
+            tmp2 -> m_next = tmp1 -> m_next;
+            tmp1 = tmp1 -> m_next;
+            m_allocator.destroy(static_cast<Node*>(old));
+            m_allocator.deallocate(static_cast<Node*>(old), sizeof(Node));
+            ++count;
+        }
+        else {
+            tmp1 = tmp1 -> m_next;
+            tmp2 = tmp2 -> m_next;
+        }
+    }
+    return count;
+}
+
+template <typename T, typename Alloc>
+template <typename UnaryPredicat>
+typename Forward_List<T, Alloc>::size_type Forward_List<T, Alloc>::unique(UnaryPredicat p) {
+        if (!m_head.m_next) {
+        return 0;
+    }
+    size_type count = 0;
+    node_base* tmp1 = m_head.m_next -> m_next;
+    node_base* tmp2 = m_head.m_next;
+    while (tmp1) {
+        node_base* old = tmp1;
+        if (p(static_cast<Node*>(tmp1) -> m_data,static_cast<Node*>(tmp2) -> m_data)) {
+            tmp2 -> m_next = tmp1 -> m_next;
+            tmp1 = tmp1 -> m_next;
+            m_allocator.destroy(static_cast<Node*>(old));
+            m_allocator.deallocate(static_cast<Node*>(old), sizeof(Node));
+            ++count;
+        }
+        else {
+            tmp1 = tmp1 -> m_next;
+            tmp2 = tmp2 -> m_next;
+        }
+    }
+    return count;
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::reverse() noexcept {
+    if (!m_head.m_next || !m_head.m_next -> m_next) {
+        return;
+    }
+    node_base* tmp1 = m_head.m_next;
+    node_base* tmp2 = m_head.m_next -> m_next;
+    node_base* tmp3 = tmp2 -> m_next;
+    m_head.m_next -> m_next = nullptr;
+    while (tmp3) {
+        tmp2 -> m_next = tmp1;
+        tmp1 = tmp2;
+        tmp2 = tmp3;
+        tmp3 = tmp3 -> m_next;
+    }
+    tmp2 -> m_next = tmp1;
+    m_head.m_next = tmp2;
+}
+
 #endif //FORWARD_LIST_TPP_

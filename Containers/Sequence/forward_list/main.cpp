@@ -18,11 +18,13 @@ class A {
 
 int main() {
     using namespace my;
-    std::vector<int> v{1,2,3,4,5,0,7,8,12};
+    std::vector<int> v{1,2,3};
     Forward_List<int> b(v.begin(), v.end());
-    Forward_List<int> ob{12,7,2,3,5,6};
-    ob.resize(10, 5);
+    Forward_List<int> ob{5,5, 4, 5, 5, 6, 7, 7, 5, 2, 0, 5};
+    // ob.splice_after(ob.before_begin(), b);
+    // std::cout << b.empty() << std::endl;
+    ob.reverse();
     for (auto i : ob) {
-        std::cout << i << " ";
+        std::cerr << i << " ";
     }
 }

@@ -2,6 +2,7 @@
 #define FORWARD_LIST_HPP_
 #include <initializer_list>
 #include <type_traits>
+#include <functional>
 #include <algorithm>
 #include <iterator>
 #include <cstddef>
@@ -21,8 +22,8 @@ namespace my {
         class Node;
     public:
         using value_type      = T;
-        using pointer         = std::allocator_traits<Alloc>::pointer;
-        using const_pointer   = std::allocator_traits<Alloc>::const_pointer;
+        using pointer         = typename std::allocator_traits<Alloc>::pointer;
+        using const_pointer   = typename std::allocator_traits<Alloc>::const_pointer;
         using size_type       = size_t;
         using difference_type = ptrdiff_t;
         using reference       = value_type&;
@@ -143,6 +144,28 @@ namespace my {
         void resize(size_type);
         void resize(size_type, const value_type&);
         void swap(Forward_List&) noexcept(std::allocator_traits<Alloc>::is_always_equal::value);
+        void sort();//TODO
+        template <typename Compare>
+        void sort(Compare);
+        void merge(Forward_List&);
+        void merge(Forward_List&&);
+        template <typename Compare>// TODO
+        void merge(Forward_List&, Compare);
+        template <typename Compare>
+        void merge(Forward_List&&, Compare);
+        void splice_after(iterator, Forward_List&);//TODO
+        void splice_after(iterator, Forward_List&&);
+        void splice_after(iterator, Forward_List&, iterator);
+        void splice_after(iterator, Forward_List&&, iterator);
+        void splice_after(iterator, Forward_List&, iterator, iterator);
+        void splice_after(iterator, Forward_List&&, iterator, iterator);
+        size_type remove(const T&);
+        template <typename UnaryPredicat>
+        size_type remove(UnaryPredicat);
+        size_type unique();
+        template <typename UnaryPredicat>
+        size_type unique(UnaryPredicat);
+        void reverse() noexcept;
     private:
         struct node_base {
             node_base* m_next;
