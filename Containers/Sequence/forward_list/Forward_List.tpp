@@ -469,6 +469,119 @@ void Forward_List<T, Alloc>::resize(size_type n) {
     resize(n, T());
 }   
 
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::merge(Forward_List& oth) {
+    merge(std::move(oth));
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::merge(Forward_List&& oth) {
+    merge(std::move(oth), std::greater<T>());
+}
+
+template <typename T, typename Alloc>
+template <typename Compare>
+void Forward_List<T, Alloc>::merge(Forward_List& oth, Compare comp) {
+    merge(std::move(oth), comp);
+}
+
+template <typename T, typename Alloc>
+template <typename Compare>
+Forward_List<T, Alloc>::node_base* Forward_List<T, Alloc>::merge(node_base* node1, node_base* node2, Compare comp) {
+    if (!node1) {
+        return node2;
+    }
+    if (!node2) {
+        return node1;
+    }
+    if (comp(static_cast<Node*>(node1)->m_data, static_cast<Node*>(node2)->m_data)) {
+        node1->m_next = merge(node1->m_next, node2, comp);
+        return node1;
+    } else {
+        node2->m_next = merge(node1, node2->m_next, comp);
+        return node2;
+    }
+}
+
+template <typename T, typename Alloc>
+template <typename Compare>
+void Forward_List<T, Alloc>::merge(Forward_List&& oth, Compare comp) {
+    if (!m_head.m_next) {
+        m_head = oth.m_head;
+        oth.m_head.m_next = nullptr;
+        return;
+    }
+    if (!oth.m_head.m_next) {
+        return;
+    }
+    node_base* tmp1 = m_head.m_next;
+    node_base* tmp2 = oth.m_head.m_next;
+    Forward_List new_head;
+    if (comp(static_cast<Node*>(m_head.m_next) -> m_data, static_cast<Node*>(oth.m_head.m_next) -> m_data)) {
+        new_head.push_front(static_cast<Node*>(oth.m_head.m_next) -> m_data);
+        tmp2 = tmp2 -> m_next;
+    }
+    else {
+        new_head.push_front(static_cast<Node*>(m_head.m_next) -> m_data);
+        tmp1 = tmp1 -> m_next;
+    }
+    while (tmp1 && tmp2) {
+        if (comp(static_cast<Node*>(tmp1) -> m_data, static_cast<Node*>(tmp2) -> m_data)) {
+            new_head.push_back(static_cast<Node*>(tmp2) -> m_data);
+            tmp2 = tmp2 -> m_next;
+        }   
+        else {
+            new_head.push_back(static_cast<Node*>(tmp1) -> m_data);
+            tmp1 = tmp1 -> m_next;     
+        }
+    }
+    while (tmp1) {
+        new_head.push_back(static_cast<Node*>(tmp1) -> m_data);
+        tmp1 = tmp1 -> m_next;
+    }
+    while (tmp2) {
+        new_head.push_back(static_cast<Node*>(tmp2) -> m_data);
+        tmp2 = tmp2 -> m_next;
+    }
+    oth.m_head.m_next = nullptr;
+    clear();
+    m_head.m_next = new_head.m_head.m_next;
+    new_head.m_head.m_next = nullptr;
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::push_back(const T& val) {
+    if (!m_head.m_next) {
+        m_head.m_next = m_allocator.allocate(sizeof(Node));
+        m_allocator.construct(static_cast<Node*>(m_head.m_next), val);
+        m_head.m_next -> m_next = nullptr;
+        return;
+    }
+    node_base* tmp = m_head.m_next;
+    while (tmp -> m_next) {
+        tmp = tmp -> m_next;
+    }
+    tmp -> m_next = m_allocator.allocate(sizeof(Node));
+    m_allocator.construct(static_cast<Node*>(tmp -> m_next), val);
+    tmp -> m_next -> m_next = nullptr;
+}
+
+template <typename T, typename Alloc>
+void Forward_List<T, Alloc>::push_back(T&& val) {
+    if (!m_head.m_next) {
+        m_head.m_next = m_allocator.allocate(sizeof(Node));
+        m_allocator.construct(static_cast<Node*>(m_head.m_next), std::move(val));
+        m_head.m_next -> m_next = nullptr;
+        return;
+    }
+    node_base* tmp = m_head.m_next;
+    while (tmp -> m_next) {
+        tmp = tmp -> m_next;
+    }
+    tmp -> m_next = m_allocator.allocate(sizeof(Node));
+    m_allocator.construct(static_cast<Node*>(tmp -> m_next), std::move(val));
+    tmp -> m_next -> m_next = nullptr;
+}
 
 template <typename T, typename Alloc>
 void Forward_List<T, Alloc>::resize(size_type n, const value_type& val) {
@@ -561,10 +674,30 @@ void Forward_List<T, Alloc>::sort() {
 template <typename T, typename Alloc>
 template <typename Compare>
 void Forward_List<T, Alloc>::sort(Compare comp) {
-    if (!m_head || !m_head->m_next) {
+    if (!m_head.m_next) {
         return;
     }
-    
+    m_head.m_next = sort(m_head.m_next, comp);
+}
+
+template <typename T, typename Alloc>
+template <typename Compare>
+Forward_List<T, Alloc>::node_base* Forward_List<T, Alloc>::sort(node_base* node, Compare comp) {
+    if (!node || !node->m_next) {
+        return node;
+    }
+    node_base* slow = node;
+    node_base* fast = node;
+    node_base* tmp = nullptr;
+    while (fast && fast->m_next) {
+        tmp = slow;
+        slow = slow->m_next;
+        fast = fast->m_next->m_next; 
+    }
+    tmp->m_next = nullptr;
+    node_base* l1 = sort(node, comp);
+    node_base* l2 = sort(slow, comp);
+    return merge(l1, l2, comp);
 }
 
 template <typename T, typename Alloc>
@@ -601,50 +734,31 @@ void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List& oth, iterat
 
 template <typename T, typename Alloc>
 void Forward_List<T, Alloc>::splice_after(iterator it, Forward_List&& oth, iterator first, iterator last) {
-    long distance = std::distance(before_begin(), it) - 1;
-    long oth_distance = std::distance(oth.before_begin(), first) - 1;
-    long difference = std::distance(first, last) - 1;
-    if (difference == -1) {
+    long difference = std::distance(first, last);
+    if (difference == 0) {
         return;
     }
-    if (distance == -1) {
-        node_base* tmp1 = m_head.m_next;
-        node_base* tmp2 = oth.m_head.m_next;
-        for (long i = 0; i < oth_distance; ++i) {
-            tmp2 = tmp2 -> m_next;
-        }
-        node_base* old_oth = tmp2;
-        node_base* new_head = tmp2 -> m_next;
-        for (long i = 0; i < difference; ++i) {
-            tmp2 = tmp2 -> m_next;
-        }
-        old_oth -> m_next = tmp2 -> m_next;
-        tmp2 -> m_next = m_head.m_next;
-        m_head.m_next = old_oth;
-        return;
+    long oth_dis = std::distance(oth.before_begin(), first);
+    node_base* last_node = oth.m_head.m_next;
+    for (long i = 0; i < oth_dis; ++i) {
+        last_node = last_node -> m_next;
     }
-    node_base* tmp1 = m_head.m_next;
-    for (int i = 0; i < distance; ++i) {
-        tmp1 = tmp1 -> m_next;
+    node_base* start_node = last_node;
+    for (long i = 0; i < difference - 1; ++i) {
+        last_node = last_node -> m_next;
     }
-    node_base* old = tmp1 -> m_next;
-    node_base* tmp2 = oth.m_head.m_next;
-    for (long i = 0; i < oth_distance; ++i) {
-        tmp2 = tmp2 -> m_next;
+    long dis = std::distance(before_begin(), it);
+    node_base* first_node = m_head.m_next;
+    for (long i = 0; i < dis; ++i) {
+        first_node = first_node -> m_next;
     }
-    node_base* oth_old = tmp2;
-    for (long i = 0; i < difference; ++i) {
-        tmp1 -> m_next = tmp2;
-        tmp2 = tmp2 -> m_next;
-        tmp1 = tmp1 -> m_next;
+    last_node -> m_next = first_node -> m_next;
+    first_node -> m_next = start_node;
+    if (first_node == m_head.m_next) {
+        m_head.m_next = start_node;
     }
-    oth.m_head.m_next = oth_old;
-    oth_old -> m_next = tmp2; 
-    while (old) {
-        tmp1 -> m_next = old;
-        tmp1 = tmp1 -> m_next;
-        old = old -> m_next;
-    }
+    last_node = nullptr;
+    first_node = nullptr;
 }
 
 template <typename T, typename Alloc>

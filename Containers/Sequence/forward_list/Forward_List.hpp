@@ -142,18 +142,20 @@ namespace my {
         reference emplace_front(Args&&...);
         void push_front(const T&);
         void push_front(T&&);
+        void push_back(const T&);
+        void push_back(T&&);
         void pop_front();
         iterator erase_after(iterator);
         iterator erase_after(iterator, iterator);
         void resize(size_type);
         void resize(size_type, const value_type&);
         void swap(Forward_List&) noexcept(std::allocator_traits<Alloc>::is_always_equal::value);
-        void sort();//TODO
+        void sort();
         template <typename Compare>
         void sort(Compare);
         void merge(Forward_List&);
         void merge(Forward_List&&);
-        template <typename Compare>// TODO
+        template <typename Compare>
         void merge(Forward_List&, Compare);
         template <typename Compare>
         void merge(Forward_List&&, Compare);
@@ -170,6 +172,11 @@ namespace my {
         template <typename UnaryPredicat>
         size_type unique(UnaryPredicat);
         void reverse() noexcept;
+    private:
+        template <typename Compare>
+        node_base* sort(node_base*, Compare);
+        template <typename Compare>
+        node_base* merge(node_base*, node_base*, Compare);
     private:
         struct node_base {
             node_base* m_next;
