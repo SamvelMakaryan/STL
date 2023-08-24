@@ -6,7 +6,7 @@
 namespace my {
 	
 	template <typename T>
-	decltype(auto) move(T&& arg) {
+	decltype(auto) move(T&& arg) noexcept {
 		using ReturnType = typename std::remove_reference<T>::type&&;
 		return static_cast<ReturnType>(arg);
 	}
