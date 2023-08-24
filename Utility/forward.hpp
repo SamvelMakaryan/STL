@@ -6,7 +6,7 @@
 namespace my {
     
     template <typename T>
-    decltype(auto) forward(std::remove_reference<T>::type& arg) noexcept {
+    decltype(auto) forward(typename std::remove_reference<T>::type& arg) noexcept {
         return static_cast<T&&>(arg);
     }
 
