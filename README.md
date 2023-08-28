@@ -1,14 +1,19 @@
 # STL
 
-This repository contains some implementations of STL library containers.
+This repository contains some implementations of STL library.
 
 ## Table of Contents
 
-- Adaptors
-	- stack
-	- queue
-	- priority_queue
-- Sequence
-	- vector
-	- forward_list
-	- array
+- Containers
+	- Adaptors
+		- stack
+		- queue
+		- priority_queue
+	- Sequence
+		- vector
+		- forward_list
+		- array
+
+- Utility
+	- forward
+	- move
