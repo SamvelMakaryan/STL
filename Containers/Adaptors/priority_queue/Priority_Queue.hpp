@@ -1,5 +1,6 @@
 #ifndef PRIORITY_QUEUE_HPP_
 #define PRIORITY_QUEUE_HPP_
+
 #include <functional>
 #include <algorithm>
 #include <utility>
@@ -58,7 +59,7 @@ namespace my {
         [[nodiscard]] bool empty() const;
         size_type size() const;
         const_reference top() const;
-        void swap(Priority_Queue&) noexcept(std::is_nothrow_swappable_v<Container>
+        void swap(Priority_Queue&) noexcept (std::is_nothrow_swappable_v<Container>
                                          && std::is_nothrow_swappable_v<Compare>);
         void push(const value_type&);
         void push(value_type&&);

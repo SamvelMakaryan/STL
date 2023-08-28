@@ -1,8 +1,11 @@
 #ifndef QUEUE_HPP_
 #define QUEUE_HPP_
+
 #include <utility>
 #include <deque>
+
 namespace my {
+
     template <typename T, typename Container = std::deque<T>>
     class Queue {
         static_assert(std::is_same_v<typename Container::value_type>,

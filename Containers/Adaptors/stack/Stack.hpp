@@ -1,9 +1,11 @@
 #ifndef STACK_HPP_
 #define STACK_HPP_
+
 #include <deque>
 #include <utility>
 
 namespace my {
+
     template <typename T, typename Container = std::deque<T>>
     class Stack {
         static_assert(std::is_same_v<typename Container::value_type>,
