@@ -5,6 +5,7 @@
 //erase
 #ifndef VECTOR_BOOL_hPP_
 #define VECTOR_BOOL_hPP_
+
 #include "Vector.hpp"
 
 template<typename Alloc>

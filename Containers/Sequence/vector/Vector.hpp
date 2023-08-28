@@ -1,5 +1,6 @@
 #ifndef VECTOR_HPP_
 #define VECTOR_HPP_
+
 #include <initializer_list>
 #include <type_traits>
 #include <algorithm>
@@ -8,10 +9,12 @@
 #include <limits>
 #include <utility>
 #include <compare>
+
 #include "Allocator.hpp"
 #include "Exception.hpp"
 
 namespace my {
+
 	template <typename T, typename Alloc = Allocator<T>>
 	class Vector {
 		static_assert(std::is_same_v<typename std::remove_cv_t<T>, T>,

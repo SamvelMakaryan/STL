@@ -1,11 +1,13 @@
 #ifndef ARRAY_HPP_
 #define ARRAY_HPP_
+
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
 #include "Exception.hpp"
 
 namespace my {
+
     template <typename T, size_t N>
     struct Array {
     public:
